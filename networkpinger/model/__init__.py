@@ -38,6 +38,20 @@ class Alert(Base):
     def __repr__(self):
        return "<Alert('%s', '%s')>" % (self.addr, self.name)
 
+    def _set_up(self, val):
+        if val == True and not self.uptime:
+            self.uptime = datetime.datetime.now()
+        else:
+            self.uptime = None
+
+    def _get_up(self):
+        return bool(self.uptime)
+    up = property(_get_up, _set_up)
+
+    @classmethod
+    def query_down(self):
+        return meta.Session.query(Alert).filter(Alert.uptime==None)
+
 
 class Host(Base):
     __tablename__ = 'hosts'
