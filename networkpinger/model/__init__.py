@@ -1,36 +1,60 @@
 """The application's model objects"""
+import datetime
+
 import sqlalchemy as sa
 from sqlalchemy import orm
+from sqlalchemy.ext.declarative import declarative_base
 
 from networkpinger.model import meta
 
 def init_model(engine):
     """Call me before using any of the tables or classes in the model"""
-    ## Reflected tables must be defined and mapped here
-    #global reflected_table
-    #reflected_table = sa.Table("Reflected", meta.metadata, autoload=True,
-    #                           autoload_with=engine)
-    #orm.mapper(Reflected, reflected_table)
-    #
     meta.Session.configure(bind=engine)
     meta.engine = engine
 
 
-## Non-reflected tables may be defined and mapped at module level
-#foo_table = sa.Table("Foo", meta.metadata,
-#    sa.Column("id", sa.types.Integer, primary_key=True),
-#    sa.Column("bar", sa.types.String(255), nullable=False),
-#    )
-#
-#class Foo(object):
-#    pass
-#
-#orm.mapper(Foo, foo_table)
+Base = declarative_base(metadata=meta.metadata)
+
+class Alert(Base):
+    __tablename__ = 'alerts'
+
+    id          = sa.Column(sa.types.Integer,       primary_key=True)
+    addr        = sa.Column(sa.types.String(255),   nullable=False)
+    name        = sa.Column(sa.types.String(255),   nullable=False)
+    time        = sa.Column(sa.types.DateTime,      nullable=False,default=datetime.datetime.now)
+    uptime      = sa.Column(sa.types.DateTime,      nullable=False,default=None)
+    ok          = sa.Column(sa.types.Boolean,       nullable=False, default=False)
+    reason      = sa.Column(sa.types.String(80),    nullable=True)
+    cur_note    = sa.Column(sa.types.String(80),    default=None)
+
+    host_id     = sa.Column(sa.types.Integer,       sa.ForeignKey('hosts.id'))
+
+    notes       = orm.relation('Note', backref='alert', lazy='dynamic')
+
+    def __init__(self, addr, name):
+        self.addr = addr
+        self.name = name
+
+    def __repr__(self):
+       return "<Alert('%s', '%s')>" % (self.addr, self.name)
 
 
-## Classes for reflected tables may be defined here, but the table and
-## mapping itself must be done in the init_model function
-#reflected_table = None
-#
-#class Reflected(object):
-#    pass
+class Host(Base):
+    __tablename__ = 'hosts'
+
+    id          = sa.Column(sa.types.Integer,       primary_key=True)
+    addr        = sa.Column(sa.types.String(255),   nullable=False)
+    name        = sa.Column(sa.types.String(255),   nullable=False)
+    monitor     = sa.Column(sa.types.Boolean,       nullable=False, default=True)
+
+    alerts      = orm.relation('Alert', backref='host', lazy='dynamic')
+
+class Note(Base):
+    __tablename__ = 'notes'
+
+    id          = sa.Column(sa.types.Integer,       primary_key=True)
+    added       = sa.Column(sa.types.DateTime,      nullable=False,default=datetime.datetime.now)
+    short       = sa.Column(sa.types.String(80),    nullable=False)
+    long        = sa.Column(sa.types.Text,          nullable=True)
+
+    alert_id    = sa.Column(sa.types.Integer,       sa.ForeignKey('alerts.id'))
