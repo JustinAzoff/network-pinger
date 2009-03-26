@@ -31,6 +31,7 @@ class Alert(Base):
 
     notes       = orm.relation('Note', backref='alert', lazy='dynamic')
 
+
     def __init__(self, addr, name):
         self.addr = addr
         self.name = name
@@ -52,6 +53,7 @@ class Alert(Base):
     def query_down(self):
         return meta.Session.query(Alert).filter(Alert.uptime==None)
 
+sa.Index('addr_uptime', Alert.addr, Alert.uptime, unique=True)
 
 class Host(Base):
     __tablename__ = 'hosts'
@@ -62,6 +64,22 @@ class Host(Base):
     monitor     = sa.Column(sa.types.Boolean,       nullable=False, default=True)
 
     alerts      = orm.relation('Alert', backref='host', lazy='dynamic')
+
+    def __init__(self, addr, name, monitor=True):
+        self.addr = addr
+        self.name = name
+        self.monitor = monitor
+
+    def __repr__(self):
+       return "<Host('%s', '%s')>" % (self.addr, self.name)
+
+    def add_alert(self):
+        a = Alert.query_down().filter(Alert.addr==self.addr).first()
+        if not a:
+            a = Alert(self.addr, self.name)
+            self.alerts.append(a)
+            meta.Session.flush()
+        return a
 
 class Note(Base):
     __tablename__ = 'notes'

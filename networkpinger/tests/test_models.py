@@ -10,7 +10,10 @@ class TestModels(TestController):
         model.meta.Session.add(a)
         model.meta.Session.flush()
 
-        a2 = model.Alert.query_down().all()[0]
+        down = model.Alert.query_down().all()
+        assert len(down)==1
+
+        a2 = down[0]
         assert a == a2
 
         print a.up, a.uptime
@@ -22,4 +25,34 @@ class TestModels(TestController):
         print a.up, a.uptime
         assert a.up is True
         assert a.uptime is not None
+
+        down = model.Alert.query_down().all()
+        assert len(down)==0
+
+    def test_Dup_Alerts(self):
+        print
+        a = model.Alert('1.2.3.4','Host Foo')
+        model.meta.Session.add(a)
+        model.meta.Session.flush()
+
+        a2 = model.Alert('1.2.3.4','Host Foo')
+        model.meta.Session.add(a)
+        model.meta.Session.flush()
+
+    def test_Host(self):
+        print
+        h = model.Host('1.2.3.4','Host Foo')
+        model.meta.Session.add(h)
+
+        len(h.alerts.all())==0
+        a = h.add_alert()
+
+        len(h.alerts.all())==1
+
+        a2 = h.add_alert()
+        len(h.alerts.all())==1
+        assert a is a2
+
+        h2 = model.meta.Session.query(model.Host).filter(model.Host.addr=='1.2.3.4').first()
+        assert h is h2
 
