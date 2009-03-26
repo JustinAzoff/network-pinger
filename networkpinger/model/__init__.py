@@ -44,6 +44,7 @@ class Alert(Base):
             self.uptime = datetime.datetime.now()
         else:
             self.uptime = None
+        meta.Session.add(self)
 
     def _get_up(self):
         return bool(self.uptime)
@@ -78,7 +79,8 @@ class Host(Base):
         if not a:
             a = Alert(self.addr, self.name)
             self.alerts.append(a)
-            meta.Session.flush()
+            meta.Session.add(a)
+            meta.Session.commit()
         return a
 
 class Note(Base):
