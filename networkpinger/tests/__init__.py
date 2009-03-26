@@ -17,14 +17,25 @@ from webtest import TestApp
 
 import pylons.test
 
-__all__ = ['environ', 'url', 'TestController']
 
 # Invoke websetup with the current config file
 SetupCommand('setup-app').run([config['__file__']])
 
 environ = {}
 
-class TestController(TestCase):
+from networkpinger import model
+class TestModel(TestCase):
+    """
+    We want the database to be created from scratch before each test and dropped after
+    each test (thus making them unit tests).
+    """
+    def setUp(self):
+        #model.resync()
+        model.meta.metadata.create_all(bind=model.meta.engine)
+    def tearDown(self):
+        model.meta.metadata.drop_all(bind=model.meta.engine)
+
+class TestController(TestModel):
 
     def __init__(self, *args, **kwargs):
         if pylons.test.pylonsapp:
@@ -34,3 +45,5 @@ class TestController(TestCase):
         self.app = TestApp(wsgiapp)
         url._push_object(URLGenerator(config['routes.map'], environ))
         TestCase.__init__(self, *args, **kwargs)
+
+__all__ = ['environ', 'url', 'TestController','model']

@@ -22,7 +22,7 @@ class Alert(Base):
     addr        = sa.Column(sa.types.String(255),   nullable=False)
     name        = sa.Column(sa.types.String(255),   nullable=False)
     time        = sa.Column(sa.types.DateTime,      nullable=False,default=datetime.datetime.now)
-    uptime      = sa.Column(sa.types.DateTime,      nullable=False,default=None)
+    uptime      = sa.Column(sa.types.DateTime,      nullable=True, default=None)
     ok          = sa.Column(sa.types.Boolean,       nullable=False, default=False)
     reason      = sa.Column(sa.types.String(80),    nullable=True)
     cur_note    = sa.Column(sa.types.String(80),    default=None)
