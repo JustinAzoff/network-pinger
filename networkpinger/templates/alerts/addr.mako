@@ -3,13 +3,14 @@
 <table border=1>
 <thead>
 <tr>
-<th>Time</th> <th>Ok</th> <th>Reason</th> <th>Note</th>
+<th>Time</th> <th>Uptime</th> <th>Ok</th> <th>Reason</th> <th>Note</th>
 </thead>
 <tbody>
 %if c.alerts:
 %   for a in c.alerts:
 <tr>
-    <td> ${a.time} </td>
+    <td> ${a.time.strftime("%X %x")} </td>
+    <td> ${a.uptime and a.uptime.strftime("%X %x")} </td>
     <td> ${a.ok} </td>
     <td> ${a.reason} </td>
     <td> ${h.link_to(a.cur_note or '[no note]', url(controller="alerts",action="notes",id=a.id)) }</td>

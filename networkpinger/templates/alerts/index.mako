@@ -10,7 +10,7 @@
 <tr>
     <td> ${h.link_to(a.addr, url(controller="alerts",action="addr",id=a.addr))} </td>
     <td> ${a.name} </td>
-    <td> ${a.time} </td>
+    <td> ${a.time.strftime("%X %x")} </td>
     <td> ${a.ok} </td>
     <td> ${a.reason} </td>
     <td> ${h.link_to(a.cur_note or '[no note]', url(controller="alerts",action="notes",id=a.id)) }</td>
