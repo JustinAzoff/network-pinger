@@ -29,3 +29,10 @@ class AlertsController(BaseController):
         a.add_note(short, long)
         model.Session.commit()
         redirect_to(action="index")
+
+    def addr(self, id):
+        addr = id
+        h = model.Host.get_by_addr(addr)
+        c.host = h
+        c.alerts = h.alerts.all()
+        return render('/alerts/addr.mako')

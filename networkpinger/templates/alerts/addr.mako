@@ -1,15 +1,14 @@
+<h2>Notes for ${c.host.name} (${c.host.addr})</h2>
 <center>
 <table border=1>
 <thead>
 <tr>
-<th>Addr</th> <th>Name</th> <th>Time</th> <th>Ok</th> <th>Reason</th> <th>Note</th>
+<th>Time</th> <th>Ok</th> <th>Reason</th> <th>Note</th>
 </thead>
 <tbody>
-%if c.down:
-%   for a in c.down:
+%if c.alerts:
+%   for a in c.alerts:
 <tr>
-    <td> ${h.link_to(a.addr, url(controller="alerts",action="addr",id=a.addr))} </td>
-    <td> ${a.name} </td>
     <td> ${a.time} </td>
     <td> ${a.ok} </td>
     <td> ${a.reason} </td>
@@ -17,7 +16,7 @@
 </tr>
 %   endfor
 %else:
-    <tr><td colspan=6>Nothing is down</td></tr>
+    <tr><td colspan=4>No alert history</td></tr>
 %endif
 </tbody>
 </center>

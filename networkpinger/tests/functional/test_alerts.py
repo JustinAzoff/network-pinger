@@ -70,3 +70,13 @@ class TestAlertsController(TestController):
 
         response = self.app.get(url(controller='alerts', action='notes',id=a.id))
         assert 'whatever' in response
+
+    def test_alerts_by_addr(self):
+        h = model.Host.add("1.2.3.4",'foo')
+        response = self.app.get(url(controller='alerts', action='addr',id=h.addr))
+
+        assert 'No alert history' in response
+
+        a = h.add_alert()
+        response = self.app.get(url(controller='alerts', action='addr',id=h.addr))
+        assert 'No alert history' not in response

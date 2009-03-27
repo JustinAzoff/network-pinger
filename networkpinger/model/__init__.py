@@ -85,7 +85,7 @@ class Host(Base):
     name        = sa.Column(sa.types.String(255),   nullable=False)
     monitor     = sa.Column(sa.types.Boolean,       nullable=False, default=True)
 
-    alerts      = orm.relation('Alert', backref='host', lazy='dynamic')
+    alerts      = orm.relation('Alert', backref='host', lazy='dynamic',order_by=sa.desc(Alert.time))
 
     def __init__(self, addr, name, monitor=True):
         self.addr = addr
@@ -105,6 +105,7 @@ class Host(Base):
         if not h:
             h = Host(addr, name)
             Session.add(h)
+            Session.commit()
         return h
 
 
