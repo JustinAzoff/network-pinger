@@ -16,6 +16,16 @@ def init_model(engine):
 
 Base = declarative_base(metadata=meta.metadata)
 
+class Note(Base):
+    __tablename__ = 'notes'
+
+    id          = sa.Column(sa.types.Integer,       primary_key=True)
+    added       = sa.Column(sa.types.DateTime,      nullable=False,default=datetime.datetime.now)
+    short       = sa.Column(sa.types.String(80),    nullable=False)
+    long        = sa.Column(sa.types.Text,          nullable=True)
+
+    alert_id    = sa.Column(sa.types.Integer,       sa.ForeignKey('alerts.id'))
+
 class Alert(Base):
     __tablename__ = 'alerts'
 
@@ -30,7 +40,7 @@ class Alert(Base):
 
     host_id     = sa.Column(sa.types.Integer,       sa.ForeignKey('hosts.id'))
 
-    notes       = orm.relation('Note', backref='alert', lazy='dynamic')
+    notes       = orm.relation('Note', backref='alert', lazy='dynamic',order_by=sa.desc(Note.added))
 
 
     def __init__(self, addr, name):
@@ -53,7 +63,7 @@ class Alert(Base):
 
     @classmethod
     def query_down(self):
-        return Session.query(Alert).filter(Alert.uptime==None)
+        return Session.query(Alert).filter(Alert.uptime==None).order_by(sa.desc(Alert.time))
 
     def add_note(self, short, long=None):
         n = Note()
@@ -106,13 +116,3 @@ class Host(Base):
             Session.add(a)
             Session.commit()
         return a
-
-class Note(Base):
-    __tablename__ = 'notes'
-
-    id          = sa.Column(sa.types.Integer,       primary_key=True)
-    added       = sa.Column(sa.types.DateTime,      nullable=False,default=datetime.datetime.now)
-    short       = sa.Column(sa.types.String(80),    nullable=False)
-    long        = sa.Column(sa.types.Text,          nullable=True)
-
-    alert_id    = sa.Column(sa.types.Integer,       sa.ForeignKey('alerts.id'))

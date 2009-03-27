@@ -13,7 +13,7 @@
     <td> ${a.time} </td>
     <td> ${a.ok} </td>
     <td> ${a.reason} </td>
-    <td> ${a.cur_note} </td>
+    <td> ${h.link_to(a.cur_note, url(controller="alerts",action="notes",id=a.id)) }</td>
 </tr>
 %   endfor
 %else:

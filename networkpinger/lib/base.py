@@ -7,6 +7,8 @@ from pylons.templating import render_mako as render
 
 from networkpinger.model import meta
 
+from pylons.decorators import validate
+
 class BaseController(WSGIController):
 
     def __call__(self, environ, start_response):
