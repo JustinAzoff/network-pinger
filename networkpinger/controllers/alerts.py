@@ -12,5 +12,5 @@ from networkpinger import model
 class AlertsController(BaseController):
 
     def index(self):
-        c.down = model.Alert.query_down()
+        c.down = model.Alert.query_down().all()
         return render('/alerts.mako')
