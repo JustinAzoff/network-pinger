@@ -6,6 +6,7 @@ from sqlalchemy import orm
 from sqlalchemy.ext.declarative import declarative_base
 
 from networkpinger.model import meta
+Session = meta.Session
 
 def init_model(engine):
     """Call me before using any of the tables or classes in the model"""
@@ -44,7 +45,7 @@ class Alert(Base):
             self.uptime = datetime.datetime.now()
         else:
             self.uptime = None
-        meta.Session.add(self)
+        Session.add(self)
 
     def _get_up(self):
         return bool(self.uptime)
@@ -52,7 +53,7 @@ class Alert(Base):
 
     @classmethod
     def query_down(self):
-        return meta.Session.query(Alert).filter(Alert.uptime==None)
+        return Session.query(Alert).filter(Alert.uptime==None)
 
 sa.Index('addr_uptime', Alert.addr, Alert.uptime, unique=True)
 
@@ -79,8 +80,8 @@ class Host(Base):
         if not a:
             a = Alert(self.addr, self.name)
             self.alerts.append(a)
-            meta.Session.add(a)
-            meta.Session.commit()
+            Session.add(a)
+            Session.commit()
         return a
 
 class Note(Base):
