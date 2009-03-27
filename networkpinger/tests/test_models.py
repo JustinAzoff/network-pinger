@@ -80,3 +80,37 @@ class TestModels(TestController):
         a.add_note("testing2")
         assert a.cur_note == "testing2"
         assert a.notes.count()==2
+
+    def test_host_get_all_addresses(self):
+        assert '1.2.3.4' not in model.Host.get_all_addresses()
+        
+        h = model.Host.add("1.2.3.4","foo")
+        assert '1.2.3.4' in model.Host.get_all_addresses()
+
+        h.active = False
+        assert '1.2.3.4' not in model.Host.get_all_addresses()
+
+        h.active = True
+        assert '1.2.3.4' in model.Host.get_all_addresses()
+
+        
+    def test_host_get_up_addresses(self):
+        h = model.Host.add("1.2.3.4","foo")
+        assert '1.2.3.4' in model.Host.get_up_addresses()
+
+        a = h.add_alert()
+        assert '1.2.3.4' not in model.Host.get_up_addresses()
+
+        a.up = True
+        assert '1.2.3.4' in model.Host.get_up_addresses()
+
+    def test_host_get_down_addresses(self):
+        h = model.Host.add("1.2.3.4","foo")
+        assert '1.2.3.4' not in model.Host.get_down_addresses()
+
+        a = h.add_alert()
+
+        assert '1.2.3.4' in model.Host.get_down_addresses()
+
+        a.up = True
+        assert '1.2.3.4' not in model.Host.get_down_addresses()

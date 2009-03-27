@@ -70,9 +70,10 @@ class Alert(Base):
         n.short = short
         n.long = long
         self.notes.append(n)
-        Session.add(n)
-        Session.commit()
         self.cur_note = n.short
+        Session.add(n)
+        Session.add(self)
+        Session.commit()
         return n
 
 sa.Index('addr_uptime', Alert.addr, Alert.uptime, unique=True)
@@ -83,14 +84,14 @@ class Host(Base):
     id          = sa.Column(sa.types.Integer,       primary_key=True)
     addr        = sa.Column(sa.types.String(255),   nullable=False)
     name        = sa.Column(sa.types.String(255),   nullable=False)
-    monitor     = sa.Column(sa.types.Boolean,       nullable=False, default=True)
+    active      = sa.Column(sa.types.Boolean,       nullable=False, default=True)
 
     alerts      = orm.relation('Alert', backref='host', lazy='dynamic',order_by=sa.desc(Alert.time))
 
-    def __init__(self, addr, name, monitor=True):
+    def __init__(self, addr, name, active=True):
         self.addr = addr
         self.name = name
-        self.monitor = monitor
+        self.active = active
 
     def __repr__(self):
        return "<Host('%s', '%s')>" % (self.addr, self.name)
@@ -108,6 +109,20 @@ class Host(Base):
             Session.commit()
         return h
 
+    @classmethod
+    def get_all_addresses(cls):
+        q = Session.query(Host).filter(Host.active==True).all()
+        return [h.addr for h in q]
+
+    @classmethod
+    def get_down_addresses(cls):
+        return [a.addr for a in Alert.query_down()]
+
+    @classmethod
+    def get_up_addresses(cls):
+        ips = set(Host.get_all_addresses())
+        ips -= set(Host.get_down_addresses())
+        return list(ips)
 
     def add_alert(self):
         a = Alert.query_down().filter(Alert.addr==self.addr).first()
@@ -117,3 +132,4 @@ class Host(Base):
             Session.add(a)
             Session.commit()
         return a
+
