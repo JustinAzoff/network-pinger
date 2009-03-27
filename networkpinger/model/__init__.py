@@ -75,6 +75,19 @@ class Host(Base):
     def __repr__(self):
        return "<Host('%s', '%s')>" % (self.addr, self.name)
 
+    @classmethod
+    def get_by_addr(self, addr):
+        return Session.query(Host).filter(Host.addr==addr).first()
+
+    @classmethod
+    def add(self, addr, name):
+        h = Host.get_by_addr(addr)
+        if not h:
+            h = Host(addr, name)
+            Session.add(h)
+        return h
+
+
     def add_alert(self):
         a = Alert.query_down().filter(Alert.addr==self.addr).first()
         if not a:
