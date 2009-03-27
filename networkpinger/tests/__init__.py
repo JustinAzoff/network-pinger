@@ -33,6 +33,7 @@ class TestModel(TestCase):
         #model.resync()
         model.meta.metadata.create_all(bind=model.meta.engine)
     def tearDown(self):
+        model.meta.Session.remove()
         model.meta.metadata.drop_all(bind=model.meta.engine)
 
 class TestController(TestModel):
