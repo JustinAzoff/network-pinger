@@ -55,6 +55,16 @@ class Alert(Base):
     def query_down(self):
         return Session.query(Alert).filter(Alert.uptime==None)
 
+    def add_note(self, short, long=None):
+        n = Note()
+        n.short = short
+        n.long = long
+        self.notes.append(n)
+        Session.add(n)
+        Session.commit()
+        self.cur_note = n.short
+        return n
+
 sa.Index('addr_uptime', Alert.addr, Alert.uptime, unique=True)
 
 class Host(Base):
