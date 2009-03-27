@@ -56,3 +56,12 @@ class TestModels(TestController):
         h2 = model.meta.Session.query(model.Host).filter(model.Host.addr=='1.2.3.4').first()
         assert h is h2
 
+    def test_add_host(self):
+        print
+        assert model.Host.get_by_addr("1.2.3.4") is None
+        h = model.Host.add("1.2.3.4","foo")
+        assert h.addr == '1.2.3.4'
+
+        h2 = model.Host.add("1.2.3.4","foo")
+        assert h is h2
+
