@@ -6,6 +6,7 @@ Installation and Setup
 
 Install ``network-pinger`` using easy_install::
 
+    easy_install http://bitbucket.org/benjaminws/python-stomp/get/6e3ac497563a.gz
     easy_install network-pinger
 
 Make a config file as follows::

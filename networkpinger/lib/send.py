@@ -4,15 +4,13 @@ import stomp
 import simplejson
 def send(msg):
     queue = '/topic/alert_msgs'
-    conn = stomp.Connection()
-    conn.start()
-    conn.connect()
-
+    conn = stomp.Stomp('localhost',61613)
     data = {'body': msg, 'who':'test'}
     msg = simplejson.dumps(data)
 
-    conn.send(msg, destination=queue)
-    #conn.disconnect()
+    conn.connect()
+    conn.send(dict(body=msg, destination=queue))
+    conn.disconnect()
 
 def wakeup():
     send("")

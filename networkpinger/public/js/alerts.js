@@ -1,5 +1,5 @@
 var log_message = function(s){
-    $("#msg").text(s).show().fadeOut('slow');
+    $("#msg").text(s).show().fadeOut(3000);
 }
 
 var load_alerts = function(){
