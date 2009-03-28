@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from networkpinger.model.configure import configure
-configure("/home/justin/code/network-pinger/development.ini")
 from networkpinger import model
+model.configure()
+#model.init_model(model.sa.create_engine("sqlite:///development.db"))
 from networkpinger.lib import nmapping
 
 import sys

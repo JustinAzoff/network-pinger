@@ -13,6 +13,12 @@ def init_model(engine):
     meta.Session.configure(bind=engine)
     meta.engine = engine
 
+import ConfigParser
+def configure(filename='development.ini'):
+    c = ConfigParser.ConfigParser({'here':'./'})
+    c.read(filename)
+    uri = c.get("app:main","sqlalchemy.url")
+    init_model(sa.create_engine(uri))
 
 Base = declarative_base(metadata=meta.metadata)
 
@@ -132,4 +138,3 @@ class Host(Base):
             Session.add(a)
             Session.commit()
         return a
-
