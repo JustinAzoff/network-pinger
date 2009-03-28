@@ -23,7 +23,7 @@ def ping(addrs, use_sudo=False):
         f.write("%s\n" % ip)
     f.flush()
     
-    cmd = "nmap --host_timeout 2000 -n -sP -PE -oG - -iL %s 2>/dev/null" % f.name
+    cmd = "nmap --host_timeout 4000 -n -sP -PE -oG - -iL %s 2>/dev/null" % f.name
     if use_sudo:
         cmd = "sudo " + cmd
 
