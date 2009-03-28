@@ -1,1 +1,6 @@
 *.pyc
+data/
+development.db
+nginx/nginx.pid
+nginx/access.log
+nginx/error.log
