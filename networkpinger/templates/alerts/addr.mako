@@ -3,6 +3,7 @@
 <thead>
 <tr>
 <th>Time</th> <th>Uptime</th> <th>Ok</th> <th>Reason</th> <th>Note</th>
+</tr>
 </thead>
 <tbody>
 %if c.alerts:

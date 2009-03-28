@@ -14,9 +14,16 @@ from networkpinger.model import forms
 class AlertsController(BaseController):
 
     def index(self):
-        c.down = model.Alert.query_down().all()
-        c.up = model.Alert.query_recent_up()
         return render('/alerts/index.mako')
+
+    def down(self):
+        c.down = model.Alert.query_down().all()
+        return render('/alerts/down.mako')
+    def up(self):
+        c.up = model.Alert.query_recent_up()
+        return render('/alerts/up.mako')
+
+
     def notes(self, id):
         a = model.Session.query(model.Alert).filter_by(id=id).one()
         c.alert = a
