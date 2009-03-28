@@ -1,4 +1,5 @@
 <h2>Hosts that were down and came back up</h2>
+%if c.up:
 <table border=1 class="alert">
 <thead>
 <tr>
@@ -6,7 +7,6 @@
 </tr>
 </thead>
 <tbody>
-%if c.up:
 %   for a in c.up:
 <tr class="up ${["notok","ok"][a.ok]}">
     <td> ${h.link_to(a.addr, url(controller="alerts",action="addr",id=a.addr))} </td>
@@ -20,8 +20,8 @@
     <td> ${a.count} </td>
 </tr>
 %   endfor
-%else:
-    <tr><td colspan=8>Nothing was down</td></tr>
-%endif
 </tbody>
 </table>
+%else:
+    <p>Nothing was down</p>
+%endif
