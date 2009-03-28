@@ -5,11 +5,10 @@
 </span>
 
 <div id="down">
-Loading...
+Loading initial alerts...
 </div>
 
 <div id="up">
-Loading...
 </div>
 
 <script src="/js/orbited/Orbited.js"></script>
