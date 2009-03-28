@@ -1,7 +1,7 @@
 import logging
 
 from pylons import request, response, session, tmpl_context as c
-from pylons.controllers.util import abort, redirect_to
+from pylons.controllers.util import abort, redirect_to, url_for
 from pylons.decorators import jsonify
 
 from networkpinger.lib.base import BaseController, render, validate
@@ -12,6 +12,8 @@ from networkpinger import model
 
 from networkpinger.model import forms
 from networkpinger.lib.send import wakeup
+
+from webhelpers.feedgenerator import Atom1Feed
 
 from pylons import cache
 mycache = cache.get_cache('alerts', type='memory')
@@ -105,3 +107,21 @@ class AlertsController(BaseController):
         wakeup()
         redirect_to(action="index")
 
+
+    def feed(self):
+        alerts = model.Session.query(model.Alert)
+        alerts = alerts.order_by(model.sa.desc(model.Alert.time)).limit(100)
+        f = Atom1Feed(
+            title = "Alerts",
+            link=url_for(),
+            description="Alerts",
+        )
+        for a in alerts:
+            f.add_item(
+                title="%s - %s" %(a.addr, a.name),
+                link=url_for(controller="alerts",action="notes",id=a.id),
+                description="Down at %s\nUp at %s" % (a.time,a.uptime),
+                pubdate = a.time,
+            )
+        response.content_type = 'application/atom+xml'
+        return f.writeString('utf-8')
