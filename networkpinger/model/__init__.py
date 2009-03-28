@@ -71,6 +71,24 @@ class Alert(Base):
     def query_down(self):
         return Session.query(Alert).filter(Alert.uptime==None).order_by(sa.desc(Alert.time))
 
+    @classmethod
+    def query_recent_up(self):
+        now = datetime.datetime.now()
+        before = now - datetime.timedelta(hours=24)
+        recent = Session.query(Alert).filter(Alert.time > before).filter(Alert.uptime!=None).order_by(sa.desc(Alert.uptime))
+        
+        seen_alerts = {}
+        ret = []
+        for a in recent:
+            r = seen_alerts.get(a.addr)
+            if r:
+                r.count += 1
+            else:
+                seen_alerts[a.addr] = a
+                a.count = 0
+                ret.append(a)
+        return ret
+
     def add_note(self, short, long=None):
         n = Note()
         n.short = short

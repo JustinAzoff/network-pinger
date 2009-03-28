@@ -15,6 +15,7 @@ class AlertsController(BaseController):
 
     def index(self):
         c.down = model.Alert.query_down().all()
+        c.up = model.Alert.query_recent_up()
         return render('/alerts/index.mako')
     def notes(self, id):
         a = model.Session.query(model.Alert).filter_by(id=id).one()
