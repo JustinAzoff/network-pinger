@@ -1,5 +1,4 @@
 <h2>Alerts for ${c.host.name} (${c.host.addr})</h2>
-<center>
 <table border=1>
 <thead>
 <tr>
@@ -20,4 +19,3 @@
     <tr><td colspan=4>No alert history</td></tr>
 %endif
 </tbody>
-</center>

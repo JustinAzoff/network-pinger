@@ -1,5 +1,4 @@
-<center>
-<h2>Down</h2>
+<h2>Hosts that are down</h2>
 <table border=1>
 <thead>
 <tr>
@@ -23,7 +22,7 @@
 </tbody>
 </table>
 
-<h2>Up</h2>
+<h2>Hosts that were down and came back up</h2>
 <table border=1>
 <thead>
 <tr>
@@ -48,4 +47,3 @@
 %endif
 </tbody>
 </table>
-</center>
