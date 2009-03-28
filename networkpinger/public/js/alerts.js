@@ -36,22 +36,38 @@ var pretty_time = function(d){
     var hour   = 60 * minute;
     var day    = 24 * hour;
     var year   = 365 * day;
+
+    var did_years = false;
+    var did_days = false;
+    var did_hours = false;
+
     if(d > year){
         r+= Math.floor(d/year) + " years";
         d %= year;
+        did_years = true;
     }
     if(d > day){
         r+= " " + Math.floor(d/day) + " days";
         d %= day;
+        did_days = true;
     }
     if(d > hour){
         r+= " " + Math.floor(d/hour) + " hours";
         d %= hour;
+        did_hours = true;
     }
+
+    if(did_years)
+        return r
+
     if(d > minute){
         r+= " " + Math.floor(d/60) + " minutes";
         d %= minute;
     }
+    
+    if (did_hours)
+        return r;
+
     r+= " " + Math.floor(d) + " seconds";
     return r;
 }
