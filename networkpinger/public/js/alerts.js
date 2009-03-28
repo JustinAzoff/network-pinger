@@ -26,7 +26,7 @@ var load_up = function(){
         return;
     fetching_up = true;
     $("#up").load("/alerts/up", function(){
-        fething_up = false;
+        fetching_up = false;
     });
 }
 
