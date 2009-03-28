@@ -34,6 +34,23 @@ class AlertsController(BaseController):
         down = model.Alert.query_down()
         return {'down': [c.to_dict() for c in down]}
 
+    @jsonify
+    def set_down(self):
+        addr = request.params.get("addr")
+        h = model.Host.get_by_addr(addr)
+        a = h.add_alert()
+        return {'alert': a.to_dict()}
+
+    @jsonify
+    def set_up(self):
+        addr = request.params.get("addr")
+        a = model.Alert.query_down().filter_by(addr=addr).first()
+        if a:
+            a.up = True
+            model.Session.commit()
+
+        return {'alert': a.to_dict()}
+
 
     def notes(self, id):
         a = model.Session.query(model.Alert).filter_by(id=id).one()

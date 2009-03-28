@@ -66,7 +66,7 @@ class Alert(Base):
             'ok':       self.ok,
             'reason':   self.reason,
             'cur_note': self.cur_note,
-            'count':    getattr(self, 'count'),
+            'count':    getattr(self, 'count', None),
         }
 
 
