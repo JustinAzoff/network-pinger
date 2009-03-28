@@ -30,12 +30,40 @@ var load_up = function(){
     });
 }
 
+var pretty_time = function(d){
+    var r = "";
+    var minute = 60;
+    var hour   = 60 * minute;
+    var day    = 24 * hour;
+    var year   = 365 * day;
+    if(d > year){
+        r+= Math.floor(d/year) + " years";
+        d %= year;
+    }
+    if(d > day){
+        r+= " " + Math.floor(d/day) + " days";
+        d %= day;
+    }
+    if(d > hour){
+        r+= " " + Math.floor(d/hour) + " hours";
+        d %= hour;
+    }
+    if(d > minute){
+        r+= " " + Math.floor(d/60) + " minutes";
+        d %= minute;
+    }
+    r+= " " + Math.floor(d) + " seconds";
+    return r;
+}
+        
+
 var fix_downtime = function(){
     var now = new Date().getTime()/1000;
     $("tr.down").each(function(){
         var downtime = $(this).attr("seconds");
         var cur = parseInt(downtime);
         var res = now - cur;
+        res = pretty_time(res);
         $(this).find(".downtime").text(res);
     });
     setTimeout(fix_downtime, 1000);
