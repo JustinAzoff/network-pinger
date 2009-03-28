@@ -1,5 +1,5 @@
 <h2>Hosts that were down and came back up</h2>
-<table border=1>
+<table border=1 class="alert">
 <thead>
 <tr>
 <th>Addr</th> <th>Name</th> <th>Time</th> <th>Uptime</th> <th>Ok</th> <th>Reason</th> <th>Note</th> <th>Count</th>
@@ -8,7 +8,7 @@
 <tbody>
 %if c.up:
 %   for a in c.up:
-<tr>
+<tr class="up ${["notok","ok"][a.ok]}">
     <td> ${h.link_to(a.addr, url(controller="alerts",action="addr",id=a.addr))} </td>
     <td> ${a.name} </td>
     <td> ${a.time.strftime("%X %x")} </td>

@@ -1,0 +1,29 @@
+table.alert {
+    border: 1px solid black;
+    border-collapse:collapse;
+}
+table.alert tr {
+    border: 1px solid black;
+}
+
+table.alert tr td {
+    border: 0;
+}
+
+table.alert tr.down.notok {
+    background-color: pink;
+}
+table.alert tr.down.ok {
+    background-color: lightyellow;
+}
+
+table.alert tr.up.notok {
+    background-color: lightblue;
+}
+table.alert tr.up.ok {
+    background-color: lightgreen;
+}
+
+table.alert a{
+    text-decoration: none;
+}

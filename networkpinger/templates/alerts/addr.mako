@@ -1,5 +1,5 @@
 <h2>Alerts for ${c.host.name} (${c.host.addr})</h2>
-<table border=1>
+<table border=1 class="alert">
 <thead>
 <tr>
 <th>Time</th> <th>Uptime</th> <th>Ok</th> <th>Reason</th> <th>Note</th>

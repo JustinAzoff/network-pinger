@@ -6,6 +6,7 @@
 TCPSocket = Orbited.TCPSocket;
 </script>
 <script src="/js/orbited/stomp.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="/style.css" />
 </head>
 <body>
     ${next.body()}
