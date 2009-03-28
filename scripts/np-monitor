@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+from networkpinger.model.configure import configure
+configure("/home/justin/code/network-pinger/development.ini")
+from networkpinger import model
+from networkpinger.lib import nmapping
+
+import sys
+
+def monitor_up():
+    ips = set(model.Host.get_up_addresses())
+    up, down = nmapping.pingmanyupdown(ips)
+    print 'upmon %d:up %d:down' % (len(up), len(down))
+
+    for ip in down:
+        h = model.Host.get_by_addr(ip)
+        h.add_alert()
+
+def monitor_down():
+    alerts = {}
+    for a in model.Alert.query_down():
+        alerts[a.addr] = a
+    up, down = nmapping.pingmanyupdown(alerts.keys())
+    print 'downmon %d:up %d:down' % (len(up), len(down))
+    for ip in up:
+        a = alerts[ip]
+        a.up = True
+        model.Session.commit()
+
+import sys, time
+while 1:
+    if sys.argv[1]=='up':
+        monitor_up()
+        time.sleep(10)
+    elif sys.argv[1]=='down':
+        monitor_down()
+        time.sleep(2)
+    else:
+        break
