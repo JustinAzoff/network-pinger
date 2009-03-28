@@ -1,3 +1,6 @@
+var fetching_down = false;
+var fetching_up = false;
+
 var log_message = function(s){
     $("#msg").text(s).show().fadeOut(3000);
 }
@@ -9,13 +12,33 @@ var load_alerts = function(){
 }
 
 var load_down = function() {
+    if(fetching_down)
+        return;
+    fetching_down = true;
     $("#down").load("/alerts/down", function(){
         var num = $("#num_alerts").text();
         document.title = "Alerts - " + num;
+        fetching_down = false;
     });
 }
 var load_up = function(){
-    $("#up").load("/alerts/up");
+    if(fetching_up)
+        return;
+    fetching_up = true;
+    $("#up").load("/alerts/up", function(){
+        fething_up = false;
+    });
+}
+
+var fix_downtime = function(){
+    var now = new Date().getTime()/1000;
+    $("tr.down").each(function(){
+        var downtime = $(this).attr("seconds");
+        var cur = parseInt(downtime);
+        var res = now - cur;
+        $(this).find(".downtime").text(res);
+    });
+    setTimeout(fix_downtime, 1000);
 }
 
 $(function(){
@@ -45,4 +68,5 @@ $(function(){
    }
    load_alerts();
    connect();
+   fix_downtime();
 });
