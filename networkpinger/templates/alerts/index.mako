@@ -20,4 +20,5 @@
     <tr><td colspan=6>Nothing is down</td></tr>
 %endif
 </tbody>
+</table>
 </center>
