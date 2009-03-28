@@ -1,30 +1,24 @@
 #!/usr/bin/env python
-from networkpinger import model
-model.configure()
+from networkpinger import client
+c = client.Client('localhost:8000')
 #model.init_model(model.sa.create_engine("sqlite:///development.db"))
 from networkpinger.lib import nmapping
 
 import sys
 
 def monitor_up():
-    ips = set(model.Host.get_up_addresses())
+    ips = c.get_up_addrs()
     up, down = nmapping.pingmanyupdown(ips)
     print 'upmon %d:up %d:down' % (len(up), len(down))
 
     for ip in down:
-        h = model.Host.get_by_addr(ip)
-        h.add_alert()
+        c.set_down(ip)
 
 def monitor_down():
-    alerts = {}
-    for a in model.Alert.query_down():
-        alerts[a.addr] = a
-    up, down = nmapping.pingmanyupdown(alerts.keys())
+    up, down = nmapping.pingmanyupdown(c.get_down_addrs())
     print 'downmon %d:up %d:down' % (len(up), len(down))
     for ip in up:
-        a = alerts[ip]
-        a.up = True
-        model.Session.commit()
+        c.set_up(ip)
 
 import sys, time
 while 1:

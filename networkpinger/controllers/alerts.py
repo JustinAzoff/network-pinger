@@ -45,12 +45,19 @@ class AlertsController(BaseController):
     def set_up(self):
         addr = request.params.get("addr")
         a = model.Alert.query_down().filter_by(addr=addr).first()
-        if a:
-            a.up = True
-            model.Session.commit()
+        if not a:
+            return {'alert': None}
 
+        a.up = True
+        model.Session.commit()
         return {'alert': a.to_dict()}
 
+    @jsonify
+    def up_addrs_json(self):
+        return {'addrs': [a for a in model.Host.get_up_addresses()]}
+    @jsonify
+    def down_addrs_json(self):
+        return {'addrs': [a for a in model.Host.get_down_addresses()]}
 
     def notes(self, id):
         a = model.Session.query(model.Alert).filter_by(id=id).one()
