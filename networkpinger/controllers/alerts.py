@@ -12,26 +12,38 @@ from networkpinger import model
 
 from networkpinger.model import forms
 
+from pylons import cache
+mycache = cache.get_cache('alerts', type='memory')
+def get_down():
+    def get():
+        return model.Alert.query_down().all()
+    return mycache.get_value(key='down', createfunc=get)
+
+def get_up():
+    def get():
+        return model.Alert.query_recent_up()
+    return mycache.get_value(key='up', createfunc=get)
+
 class AlertsController(BaseController):
 
     def index(self):
         return render('/alerts/index.mako')
 
     def down(self):
-        c.down = model.Alert.query_down().all()
+        c.down = get_down()
         return render('/alerts/down.mako')
     def up(self):
-        c.up = model.Alert.query_recent_up()
+        c.up = get_up()
         return render('/alerts/up.mako')
 
     @jsonify
     def up_json(self):
-        up = model.Alert.query_recent_up()
+        up = get_up()
         return {'up': [c.to_dict() for c in up]}
 
     @jsonify
     def down_json(self):
-        down = model.Alert.query_down()
+        down = get_down()
         return {'down': [c.to_dict() for c in down]}
 
     @jsonify
@@ -39,6 +51,7 @@ class AlertsController(BaseController):
         addr = request.params.get("addr")
         h = model.Host.get_by_addr(addr)
         a = h.add_alert()
+        mycache.remove_value("down")
         return {'alert': a.to_dict()}
 
     @jsonify
@@ -50,6 +63,8 @@ class AlertsController(BaseController):
 
         a.up = True
         model.Session.commit()
+        mycache.remove_value("down")
+        mycache.remove_value("up")
         return {'alert': a.to_dict()}
 
     @jsonify
@@ -57,7 +72,7 @@ class AlertsController(BaseController):
         return {'addrs': [a for a in model.Host.get_up_addresses()]}
     @jsonify
     def down_addrs_json(self):
-        return {'addrs': [a for a in model.Host.get_down_addresses()]}
+        return {'addrs': [a.addr for a in get_down()]}
 
     def notes(self, id):
         a = model.Session.query(model.Alert).filter_by(id=id).one()
@@ -71,6 +86,12 @@ class AlertsController(BaseController):
         long = self.form_result.get("long")
         a.add_note(short, long)
         model.Session.commit()
+
+        if a.uptime:
+            mycache.remove_value("up")
+        else:
+            mycache.remove_value("down")
+
         redirect_to(action="index")
 
     def addr(self, id):
