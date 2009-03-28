@@ -1,4 +1,4 @@
-<h2>Notes for ${c.host.name} (${c.host.addr})</h2>
+<h2>Alerts for ${c.host.name} (${c.host.addr})</h2>
 <center>
 <table border=1>
 <thead>
