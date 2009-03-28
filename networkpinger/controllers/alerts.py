@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 from networkpinger import model
 
 from networkpinger.model import forms
-from networkpinger.lib import send
+from networkpinger.lib.send import wakeup
 
 from pylons import cache
 mycache = cache.get_cache('alerts', type='memory')
@@ -53,7 +53,7 @@ class AlertsController(BaseController):
         h = model.Host.get_by_addr(addr)
         a = h.add_alert()
         mycache.remove_value("down")
-        send("")
+        wakeup()
         return {'alert': a.to_dict()}
 
     @jsonify
@@ -67,7 +67,7 @@ class AlertsController(BaseController):
         model.Session.commit()
         mycache.remove_value("down")
         mycache.remove_value("up")
-        send("")
+        wakeup()
         return {'alert': a.to_dict()}
 
     @jsonify
@@ -95,7 +95,7 @@ class AlertsController(BaseController):
         else:
             mycache.remove_value("down")
 
-        send("")
+        wakeup()
         redirect_to(action="index")
 
     def addr(self, id):

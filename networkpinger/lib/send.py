@@ -14,6 +14,9 @@ def send(msg):
     conn.send(msg, destination=queue)
     #conn.disconnect()
 
+def wakeup():
+    send("")
+
 if __name__ == "__main__":
     import sys, time
     send(sys.argv[1], sys.argv[2])
