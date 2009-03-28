@@ -85,7 +85,7 @@ class Alert(Base):
                 r.count += 1
             else:
                 seen_alerts[a.addr] = a
-                a.count = 0
+                a.count = 1
                 ret.append(a)
         return ret
 
