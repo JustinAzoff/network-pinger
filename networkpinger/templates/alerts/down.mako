@@ -1,4 +1,4 @@
-<h2>Hosts that are down(${len(c.down)})</h2>
+<h2>Hosts that are down(<span id="num_alerts">${len(c.down)}</span>)</h2>
 <table border=1 class="alert">
 <thead>
 <tr>
