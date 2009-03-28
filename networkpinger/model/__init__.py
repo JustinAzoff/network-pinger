@@ -56,6 +56,21 @@ class Alert(Base):
     def __repr__(self):
        return "<Alert('%s', '%s')>" % (self.addr, self.name)
 
+    def to_dict(self):
+        return {
+            'id':       self.id,
+            'addr':     self.addr,
+            'name':     self.name,
+            'time':     str(self.time),
+            'uptime':   self.uptime and str(self.uptime),
+            'ok':       self.ok,
+            'reason':   self.reason,
+            'cur_note': self.cur_note,
+            'count':    getattr(self, 'count'),
+        }
+
+
+
     def _set_up(self, val):
         if val == True and not self.uptime:
             self.uptime = datetime.datetime.now()

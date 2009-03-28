@@ -2,6 +2,7 @@ import logging
 
 from pylons import request, response, session, tmpl_context as c
 from pylons.controllers.util import abort, redirect_to
+from pylons.decorators import jsonify
 
 from networkpinger.lib.base import BaseController, render, validate
 
@@ -22,6 +23,16 @@ class AlertsController(BaseController):
     def up(self):
         c.up = model.Alert.query_recent_up()
         return render('/alerts/up.mako')
+
+    @jsonify
+    def up_json(self):
+        up = model.Alert.query_recent_up()
+        return {'up': [c.to_dict() for c in up]}
+
+    @jsonify
+    def down_json(self):
+        down = model.Alert.query_down()
+        return {'down': [c.to_dict() for c in down]}
 
 
     def notes(self, id):
