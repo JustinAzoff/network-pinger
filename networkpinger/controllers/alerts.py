@@ -16,6 +16,7 @@ from networkpinger.lib.send import wakeup
 from webhelpers.feedgenerator import Atom1Feed
 
 from pylons import cache
+from pylons.decorators.cache import beaker_cache
 mycache = cache.get_cache('alerts', type='memory')
 def get_down():
     f = model.Alert.query_down().all
@@ -27,6 +28,7 @@ def get_up():
 
 class AlertsController(BaseController):
 
+    @beaker_cache(expire=600, type="memory")
     def index(self):
         return render('/alerts/index.mako')
 
