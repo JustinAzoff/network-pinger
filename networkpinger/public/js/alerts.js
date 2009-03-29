@@ -1,12 +1,13 @@
 var fetching_down = false;
 var fetching_up = false;
 
-var log_message = function(s){
-    $("#msg").text(s).show().fadeOut(3000);
+var log_message = function(s,d){
+    if(!d)d=3000;
+    $("#msg").text(s).show().fadeOut(d);
 }
 
 var load_alerts = function(){
-    log_message("Loading...");
+    //log_message("Loading...");
     load_down();
     load_up();
 }
@@ -92,8 +93,9 @@ $(function(){
         //log_message("");
     };
     stomp.onclose = function(c) {
-        log_message("Lost Connection, Code: " + c + " Reconnecting in 3 seconds...");
-        setTimeout(connect, 3000);
+        log_message("Connection error, code: " + c + ". Reconnecting in 30 seconds... Automatically refreshing alerts",30000);
+        setTimeout(connect, 30000);
+        load_alerts();
     };
     stomp.onerror = function(error) {
         log_message("Error: " + error);
@@ -103,6 +105,7 @@ $(function(){
     };
     stomp.onconnectedframe = function() {
         stomp.subscribe("/topic/alert_msgs");
+        load_alerts();
     };
     stomp.onmessageframe = function(frame) {
         load_alerts();
@@ -115,7 +118,6 @@ $(function(){
     var connect = function(){
         stomp.connect('localhost', 61613);
     }
-    load_alerts();
     connect();
     fix_downtime();
 });
