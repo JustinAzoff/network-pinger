@@ -86,36 +86,36 @@ var fix_downtime = function(){
 }
 
 $(function(){
-   TCPSocket = Orbited.TCPSocket;
-   stomp = new STOMPClient();
-   stomp.onopen = function() {
-       //log_message("");
-   };
-   stomp.onclose = function(c) {
-       log_message("Lost Connection, Code: " + c + " Reconnecting in 3 seconds...");
-       setTimeout(connect, 3000);
-   };
-   stomp.onerror = function(error) {
-       log_message("Error: " + error);
-   };
-   stomp.onerrorframe = function(frame) {
-       log_message("Error: " + frame.body);
-   };
-   stomp.onconnectedframe = function() {
-       stomp.subscribe("/topic/alert_msgs");
-   };
-   stomp.onmessageframe = function(frame) {
-       load_alerts();
-       body = JSON.parse(frame.body);
-       if(body.up)
-          log_message("Up: " +   body.up.addr);
-       else(body.down)
-          log_message("Down: " + body.down.addr);
-   };
-   var connect = function(){
-       stomp.connect('localhost', 61613);
-   }
-   load_alerts();
-   connect();
-   fix_downtime();
+    TCPSocket = Orbited.TCPSocket;
+    stomp = new STOMPClient();
+    stomp.onopen = function() {
+        //log_message("");
+    };
+    stomp.onclose = function(c) {
+        log_message("Lost Connection, Code: " + c + " Reconnecting in 3 seconds...");
+        setTimeout(connect, 3000);
+    };
+    stomp.onerror = function(error) {
+        log_message("Error: " + error);
+    };
+    stomp.onerrorframe = function(frame) {
+        log_message("Error: " + frame.body);
+    };
+    stomp.onconnectedframe = function() {
+        stomp.subscribe("/topic/alert_msgs");
+    };
+    stomp.onmessageframe = function(frame) {
+        load_alerts();
+        body = JSON.parse(frame.body);
+        if(body.up)
+            log_message("Up: " +   body.up.addr);
+        else(body.down)
+            log_message("Down: " + body.down.addr);
+    };
+    var connect = function(){
+        stomp.connect('localhost', 61613);
+    }
+    load_alerts();
+    connect();
+    fix_downtime();
 });
