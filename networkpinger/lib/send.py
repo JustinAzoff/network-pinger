@@ -2,18 +2,16 @@
 import sys
 import stomp
 import simplejson
-def send(msg):
+def send(up=None,down=None):
     queue = '/topic/alert_msgs'
     conn = stomp.Stomp('localhost',61613)
-    data = {'body': msg, 'who':'test'}
+    data = {'up': up, 'down': down, 'who':'backend'}
     msg = simplejson.dumps(data)
 
     conn.connect()
     conn.send(dict(body=msg, destination=queue))
     conn.disconnect()
 
-def wakeup():
-    send("")
 
 if __name__ == "__main__":
     import sys, time

@@ -106,6 +106,11 @@ $(function(){
    };
    stomp.onmessageframe = function(frame) {
        load_alerts();
+       body = JSON.parse(frame.body);
+       if(body.up)
+          log_message("Up: " +   body.up.addr);
+       else(body.down)
+          log_message("Down: " + body.down.addr);
    };
    var connect = function(){
        stomp.connect('localhost', 61613);

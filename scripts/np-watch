@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+import time
+import stomp
+import sys
+import select
+import simplejson
+
+def handle(message):
+    msg = simplejson.loads(message.body)
+    if msg['up']:
+        print 'Up: ',   msg['up']['addr']
+    if msg['down']:
+        print 'Down: ', msg['down']['addr']
+
+def watch():
+    c = stomp.Stomp('localhost', 61613)
+    c.connect()
+
+    c.subscribe(dict(destination='/topic/alert_msgs'))
+    for n in range(1000):
+        m = c.receive_frame()
+        if m:
+            handle(m)
+
+if __name__ == "__main__":
+    watch()
