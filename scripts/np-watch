@@ -8,9 +8,13 @@ import simplejson
 def handle(message):
     msg = simplejson.loads(message.body)
     if msg['up']:
-        print 'Up: ',   msg['up']['addr']
+        a = msg['up']
+        print 'Up: ',
     if msg['down']:
-        print 'Down: ', msg['down']['addr']
+        print 'Down: ',
+        a = msg['down']
+    print "%(addr)s %(name)s %(time)s %(uptime)s" % a
+        
 
 def watch():
     c = stomp.Stomp('localhost', 61613)
