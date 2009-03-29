@@ -18,14 +18,12 @@ from webhelpers.feedgenerator import Atom1Feed
 from pylons import cache
 mycache = cache.get_cache('alerts', type='memory')
 def get_down():
-    def get():
-        return model.Alert.query_down().all()
-    return mycache.get_value(key='down', createfunc=get)
+    f = model.Alert.query_down().all
+    return mycache.get_value(key='down', createfunc=f)
 
 def get_up():
-    def get():
-        return model.Alert.query_recent_up()
-    return mycache.get_value(key='up', createfunc=get)
+    f = model.Alert.query_recent_up
+    return mycache.get_value(key='up', createfunc=f)
 
 class AlertsController(BaseController):
 
@@ -125,3 +123,9 @@ class AlertsController(BaseController):
             )
         response.content_type = 'application/atom+xml'
         return f.writeString('utf-8')
+
+    def clear_caches(self):
+        mycache.remove_value("down")
+        mycache.remove_value("up")
+        wakeup()
+        return "ok"
