@@ -17,6 +17,7 @@ setup(
     install_requires=[
         "Pylons>=0.9.7",
         "SQLAlchemy>=0.5",
+        "Twisted",
         "Orbited",
         "stomp",
     ],
