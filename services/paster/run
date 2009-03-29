@@ -1,4 +1,5 @@
 #!/bin/sh
 exec 2>&1
 cd ~/code/network-pinger/
+sleep 2
 exec paster serve production.ini --reload
