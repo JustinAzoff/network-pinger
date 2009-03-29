@@ -171,3 +171,16 @@ class Host(Base):
             Session.add(a)
             Session.commit()
         return a
+
+    def set_inactive(self,shortnote="set inactive",longnote=None):
+        self.active = False
+        a = self.alerts.first()
+        if a and a.uptime is None:
+            a.up = True
+            a.ok = True
+            a.add_note(shortnote, longnote)
+        Session.commit()
+    
+    def set_active(self):
+        self.active = True
+        Session.commit()
