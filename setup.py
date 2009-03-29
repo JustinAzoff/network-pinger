@@ -5,6 +5,8 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
+import glob
+
 setup(
     name='network-pinger',
     version='0.1',
@@ -16,7 +18,7 @@ setup(
         "Pylons>=0.9.7",
         "SQLAlchemy>=0.5",
         "Orbited",
-        "python-stomp",
+        "stomp",
     ],
     setup_requires=["PasteScript>=1.6.3"],
     packages=find_packages(exclude=['ez_setup']),
@@ -36,4 +38,5 @@ setup(
     [paste.app_install]
     main = pylons.util:PylonsInstaller
     """,
+    scripts=glob.glob("scripts/*"),
 )
