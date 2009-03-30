@@ -7,6 +7,6 @@ from networkpinger import model
 import sys
 
 for line in sys.stdin:
-    addr, name = line.split(None, 1)
+    addr, name = line.strip().split(None, 1)
     h = model.Host.add(addr, name)
 model.Session.commit()
