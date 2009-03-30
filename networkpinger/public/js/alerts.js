@@ -83,7 +83,11 @@ var fix_downtime = function(){
         res = pretty_time(res);
         $(this).find(".downtime").text(res);
     });
-    setTimeout(fix_downtime, 1000);
+    delay = 1000;
+    var num = $("#num_alerts").text();
+    if (num > 20)
+        delay *= 5;
+    setTimeout(fix_downtime, delay);
 }
 
 $(function(){
