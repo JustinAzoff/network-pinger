@@ -9,4 +9,5 @@ import sys
 for line in sys.stdin:
     addr, name = line.strip().split(None, 1)
     h = model.Host.add(addr, name)
+    print h
 model.Session.commit()
