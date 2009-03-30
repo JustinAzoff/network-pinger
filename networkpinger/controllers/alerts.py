@@ -12,6 +12,7 @@ from networkpinger import model
 
 from networkpinger.model import forms
 from networkpinger.lib.send import send
+from networkpinger.lib.disk_cache import disk_cache, rm_cached
 
 from webhelpers.feedgenerator import Atom1Feed
 
@@ -26,15 +27,24 @@ def get_up():
     f = model.Alert.query_recent_up
     return mycache.get_value(key='up', createfunc=f)
 
+basedir = "/home/justin/code/network-pinger/networkpinger/public/"
+def flush_caches():
+    rm_cached(basedir, 'alerts/up alerts/down alerts/up_json alerts/down_json'.split())
+    mycache.remove_value("down")
+    mycache.remove_value("up")
+
 class AlertsController(BaseController):
 
     @beaker_cache(expire=600, type="memory")
     def index(self):
         return render('/alerts/index.mako')
 
+    @disk_cache(basedir=basedir)
     def down(self):
         c.down = get_down()
         return render('/alerts/down.mako')
+
+    @disk_cache(basedir=basedir)
     def up(self):
         c.up = get_up()
         return render('/alerts/up.mako')
@@ -50,11 +60,13 @@ class AlertsController(BaseController):
         c.alert = model.Session.query(model.Alert).get(id)
         return render('/alerts/notes.mako')
 
+    @disk_cache(basedir=basedir)
     @jsonify
     def up_json(self):
         up = get_up()
         return {'up': [c.to_dict() for c in up]}
 
+    @disk_cache(basedir=basedir)
     @jsonify
     def down_json(self):
         down = get_down()
@@ -65,7 +77,7 @@ class AlertsController(BaseController):
         addr = request.params.get("addr")
         h = model.Host.get_by_addr(addr)
         a = h.add_alert()
-        mycache.remove_value("down")
+        flush_caches()
         send(down=a.to_dict())
         return {'alert': a.to_dict()}
 
@@ -78,14 +90,14 @@ class AlertsController(BaseController):
 
         a.up = True
         model.Session.commit()
-        mycache.remove_value("down")
-        mycache.remove_value("up")
+        flush_caches()
         send(up=a.to_dict())
         return {'alert': a.to_dict()}
 
     @jsonify
     def up_addrs_json(self):
         return {'addrs': [a for a in model.Host.get_up_addresses()]}
+
     @jsonify
     def down_addrs_json(self):
         return {'addrs': [a.addr for a in get_down()]}
@@ -98,10 +110,7 @@ class AlertsController(BaseController):
         a.add_note(short, long)
         model.Session.commit()
 
-        if a.uptime:
-            mycache.remove_value("up")
-        else:
-            mycache.remove_value("down")
+        flush_caches()
 
         send()
         redirect_to(action="index")
@@ -126,7 +135,6 @@ class AlertsController(BaseController):
         return f.writeString('utf-8')
 
     def clear_caches(self):
-        mycache.remove_value("down")
-        mycache.remove_value("up")
+        flush_caches()
         send()
         return "ok"
