@@ -12,7 +12,7 @@ def monitor_up():
         return
     up, down = nmapping.pingmanyupdown(ips,use_sudo=True)
     if len(down):
-        print 'upmon %d:up %d:down' % (len(up), len(down))
+        print 'upmon up:%d down:%d' % (len(up), len(down))
 
     for ip in down:
         c.set_down(ip)
@@ -23,7 +23,7 @@ def monitor_down():
         return
     up, down = nmapping.pingmanyupdown(ips,use_sudo=True)
     if len(up):
-        print 'downmon %d:up %d:down' % (len(up), len(down))
+        print 'downmon up:%d down:%d' % (len(up), len(down))
     for ip in up:
         c.set_up(ip)
 
