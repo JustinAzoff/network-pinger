@@ -8,6 +8,7 @@ table.alert tr {
 
 table.alert tr td {
     border: 0;
+    font-size: small;
 }
 
 table.alert tr.down.notok {
