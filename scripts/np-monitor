@@ -8,14 +8,19 @@ import sys
 
 def monitor_up():
     ips = c.get_up_addrs()
-    up, down = nmapping.pingmanyupdown(ips)
+    if not ips:
+        return
+    up, down = nmapping.pingmanyupdown(ips,use_sudo=True)
     print 'upmon %d:up %d:down' % (len(up), len(down))
 
     for ip in down:
         c.set_down(ip)
 
 def monitor_down():
-    up, down = nmapping.pingmanyupdown(c.get_down_addrs())
+    ips = c.get_down_addrs()
+    if not ips:
+        return
+    up, down = nmapping.pingmanyupdown(ips,use_sudo=True)
     print 'downmon %d:up %d:down' % (len(up), len(down))
     for ip in up:
         c.set_up(ip)
