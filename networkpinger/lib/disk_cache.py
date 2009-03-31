@@ -13,10 +13,12 @@ def disk_cache(basedir):
             d = os.path.dirname(fn)
             if not os.path.isdir(d):
                 os.makedirs(d)
-            f=open(fn,'w')
             s = func(*args, **kwargs)
+            tfn = fn + '.tmp'
+            f=open(tfn,'w')
             f.write(s)
             f.close()
+            os.rename(tfn,fn)
             return s
 
         path = request.path[1:]
