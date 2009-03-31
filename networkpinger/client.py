@@ -11,7 +11,9 @@ class Client:
     
     def do(self, page, **kwargs):
         url = "http://%s/%s" % (self.h, page)
-        data = urllib.urlencode(kwargs)
+        data = None
+        if kwargs:
+            data = urllib.urlencode(kwargs)
         return urllib2.urlopen(url, data).read()
 
     def do_json(self, page, **kwargs):
