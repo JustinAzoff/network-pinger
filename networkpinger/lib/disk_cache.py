@@ -32,7 +32,7 @@ def disk_cache(basedir):
 
         path = request.path[1:]
         qs = request.query_string
-        fn = os.path.join(basedir, path + '.html')
+        fn = os.path.normpath(os.path.join(basedir, path + '.html'))
         if not fn.startswith(basedir):
             return ''
         mycache = cache.get_cache('disk_cache', type='memory',expiretime=0)
