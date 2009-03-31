@@ -10,6 +10,15 @@ import os
 def disk_cache(basedir):
     def render_to_disk(func, *args, **kwargs):
         def create_func():
+            try:
+                f = open(fn)
+                s = f.read()
+                f.close()
+                log.info("not writing to %s, returning existing content" % fn)
+                return s
+            except:
+                pass
+            log.info("writing to %s" % fn)
             d = os.path.dirname(fn)
             if not os.path.isdir(d):
                 os.makedirs(d)
@@ -26,7 +35,6 @@ def disk_cache(basedir):
         fn = os.path.join(basedir, path + '.html')
         if not fn.startswith(basedir):
             return ''
-        log.info("writing to %s" % fn)
         mycache = cache.get_cache('disk_cache', type='memory',expiretime=0)
         return mycache.get_value(key=fn, createfunc=create_func)
     return decorator(render_to_disk)
