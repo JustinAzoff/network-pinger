@@ -28,8 +28,10 @@ def get_up():
     return mycache.get_value(key='up', createfunc=f)
 
 basedir = "/home/justin/code/network-pinger/networkpinger/public/"
-def flush_caches():
-    rm_cached(basedir, 'alerts/up alerts/down alerts/up_json alerts/down_json'.split())
+def flush_caches(ips=[]):
+    to_del = 'alerts/up alerts/down alerts/up_json alerts/down_json'.split()
+    to_del.extend(['alerts/addr/%s' % ip for ip in ips])
+    rm_cached(basedir, to_del)
     mycache.remove_value("down")
     mycache.remove_value("up")
 
@@ -49,6 +51,7 @@ class AlertsController(BaseController):
         c.up = get_up()
         return render('/alerts/up.mako')
 
+    @disk_cache(basedir=basedir)
     def addr(self, id):
         addr = id
         h = model.Host.get_by_addr(addr)
@@ -77,7 +80,7 @@ class AlertsController(BaseController):
         addr = request.params.get("addr")
         h = model.Host.get_by_addr(addr)
         a = h.add_alert()
-        flush_caches()
+        flush_caches([addr])
         send(down=a.to_dict())
         return {'alert': a.to_dict()}
 
@@ -90,7 +93,7 @@ class AlertsController(BaseController):
 
         a.up = True
         model.Session.commit()
-        flush_caches()
+        flush_caches([addr])
         send(up=a.to_dict())
         return {'alert': a.to_dict()}
 
@@ -110,7 +113,7 @@ class AlertsController(BaseController):
         a.add_note(short, long)
         model.Session.commit()
 
-        flush_caches()
+        flush_caches([a.addr])
 
         send()
         redirect_to(action="index")
