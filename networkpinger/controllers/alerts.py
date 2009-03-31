@@ -47,8 +47,7 @@ class AlertsController(BaseController):
         return render('/alerts/addr.mako')
 
     def notes(self, id):
-        a = model.Session.query(model.Alert).filter_by(id=id).one()
-        c.alert = a
+        c.alert = model.Session.query(model.Alert).get(id)
         return render('/alerts/notes.mako')
 
     @jsonify
