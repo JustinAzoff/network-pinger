@@ -37,7 +37,7 @@ def flush_caches(ips=[]):
 
 class AlertsController(BaseController):
 
-    @beaker_cache(expire=600, type="memory")
+    @disk_cache(basedir=basedir)
     def index(self):
         return render('/alerts/index.mako')
 
