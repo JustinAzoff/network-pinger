@@ -11,7 +11,6 @@ log = logging.getLogger(__name__)
 from networkpinger import model
 
 from networkpinger.model import forms
-from networkpinger.lib.send import send
 
 from webhelpers.feedgenerator import Atom1Feed
 
@@ -66,7 +65,6 @@ class AlertsController(BaseController):
         h = model.Host.get_by_addr(addr)
         a = h.add_alert()
         mycache.remove_value("down")
-        send(down=a.to_dict())
         return {'alert': a.to_dict()}
 
     @jsonify
@@ -80,7 +78,6 @@ class AlertsController(BaseController):
         model.Session.commit()
         mycache.remove_value("down")
         mycache.remove_value("up")
-        send(up=a.to_dict())
         return {'alert': a.to_dict()}
 
     @jsonify
@@ -103,9 +100,7 @@ class AlertsController(BaseController):
         else:
             mycache.remove_value("down")
 
-        send()
         redirect_to(action="index")
-
 
     def feed(self):
         alerts = model.Session.query(model.Alert)
@@ -128,5 +123,4 @@ class AlertsController(BaseController):
     def clear_caches(self):
         mycache.remove_value("down")
         mycache.remove_value("up")
-        send()
         return "ok"

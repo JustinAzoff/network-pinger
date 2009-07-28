@@ -1,6 +1,8 @@
 <%inherit file="../base.mako"/>
 
+Seconds to refresh: <b id="time_remaining">15</b>.
 <a onclick="load_alerts();return false;" href="/alerts/index">Refresh</a>
+
 <span id="msg">
 </span>
 
@@ -11,6 +13,4 @@ Loading initial alerts...
 <div id="up">
 </div>
 
-<script src="/js/orbited/Orbited.js"></script>
-<script src="/js/orbited/stomp.js"></script>
 <script src="/js/alerts.js"></script>
