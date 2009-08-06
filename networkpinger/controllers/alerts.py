@@ -16,7 +16,7 @@ from webhelpers.feedgenerator import Atom1Feed
 
 from pylons import cache
 from pylons.decorators.cache import beaker_cache
-mycache = cache.get_cache('alerts', type='memory')
+mycache = cache.get_cache('alerts', type='memory', expiretime=10)
 def get_down():
     f = model.Alert.query_down().all
     return mycache.get_value(key='down', createfunc=f)
