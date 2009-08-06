@@ -36,11 +36,12 @@ class Client:
     def get_up(self):
         return self.do_json("alerts/up_json")['up']
 
-    def set_ok(self, alert_id):
-        return self.do_json("alerts/set_ok", id=alert_id,ok=True)
+    def update(self, alert_id, **kwargs):
+        return self.do_json("alerts/update/%d" % alert_id, **kwargs)
     
+    def set_ok(self, alert_id):
+        return self.update(alert_id, {'ok': 'true'})
     def set_bad(self, alert_id):
-        return self.do_json("alerts/set_ok", id=alert_id)
-
+        return self.update(alert_id, {'ok': 'false'})
     def set_reason(self, alert_id, reason):
-        return self.do_json("alerts/set_reason", id=alert_id, reason=reason)
+        return self.update(alert_id, {'reason': 'reason'})

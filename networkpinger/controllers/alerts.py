@@ -81,23 +81,19 @@ class AlertsController(BaseController):
         return {'alert': a.to_dict()}
 
     @jsonify
-    def set_ok(self):
-        id = request.params.get("id")
-        state = bool(request.params.get("ok"))
+    def update(self, id):
         a = model.Session.query(model.Alert).get(id)
-        a.ok = state
-        model.Session.commit()
-        self.clear_caches()
-        return {'alert': a.to_dict()}
+        if 'ok' in request.params:
+            ok = request.params.get("ok")
+            ok = (ok == 'true')
+            a.ok = ok
+        if 'reason' in request.params:
+            reason = request.params.get("reason")
+            a.reason = reason
 
-    @jsonify
-    def set_reason(self):
-        id = request.params.get("id")
-        reason = request.params.get("reason")
-        a = model.Session.query(model.Alert).get(id)
-        a.reason = reason
         model.Session.commit()
         self.clear_caches()
+
         return {'alert': a.to_dict()}
 
     @jsonify
