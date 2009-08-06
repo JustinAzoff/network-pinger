@@ -1,5 +1,0 @@
-#!/bin/sh
-exec 2>&1
-cd ~/code/network-pinger/
-sleep 2
-exec orbited --config nginx/orbited.cfg

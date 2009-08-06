@@ -15,9 +15,13 @@ def monitor_up(c=None):
     ips = c.get_up_addrs()
     if not ips:
         return
-    up, down = nmapping.pingmanyupdown(ips,use_sudo=True)
+    #give devices 2 changes to be up
+    down = ips
+    _, down = nmapping.pingmanyupdown(down,use_sudo=True)
+    if down:
+        _, down = nmapping.pingmanyupdown(down,use_sudo=True)
     if len(down):
-        log('upmon up:%d down:%d' % (len(up), len(down)))
+        log('upmon up:%d down:%d' % (len(ips) - len(down), len(down)))
 
     for ip in down:
         c.set_down(ip)
