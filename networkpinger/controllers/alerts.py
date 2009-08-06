@@ -90,6 +90,10 @@ class AlertsController(BaseController):
         if 'reason' in request.params:
             reason = request.params.get("reason")
             a.reason = reason
+        if 'note_short' in request.params:
+            note_short = request.params.get("note_short")
+            note_long = request.params.get("note_long")
+            a.add_note(note_short, note_long)
 
         model.Session.commit()
         self.clear_caches()

@@ -40,8 +40,11 @@ class Client:
         return self.do_json("alerts/update/%d" % alert_id, **kwargs)
     
     def set_ok(self, alert_id):
-        return self.update(alert_id, {'ok': 'true'})
+        return self.update(alert_id, ok='true')
     def set_bad(self, alert_id):
-        return self.update(alert_id, {'ok': 'false'})
+        return self.update(alert_id, ok='false')
     def set_reason(self, alert_id, reason):
-        return self.update(alert_id, {'reason': 'reason'})
+        return self.update(alert_id, reason=reason)
+
+    def set_note(self, alert_id, short, long):
+        return self.update(alert_id, note_short=short, note_long=long)
