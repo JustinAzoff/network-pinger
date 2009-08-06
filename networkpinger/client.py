@@ -35,3 +35,12 @@ class Client:
 
     def get_up(self):
         return self.do_json("alerts/up_json")['up']
+
+    def set_ok(self, alert_id):
+        return self.do_json("alerts/set_ok", id=alert_id,ok=True)
+    
+    def set_bad(self, alert_id):
+        return self.do_json("alerts/set_ok", id=alert_id)
+
+    def set_reason(self, alert_id, reason):
+        return self.do_json("alerts/set_reason", id=alert_id, reason=reason)
