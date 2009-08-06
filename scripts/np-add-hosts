@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from networkpinger.model.configure import configure
-configure("/home/justin/code/network-pinger/development.ini")
+configure("/home/justin/projects/network-pinger/development.ini")
 
 from networkpinger import model
 
