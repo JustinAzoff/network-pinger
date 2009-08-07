@@ -1,0 +1,159 @@
+#!/usr/bin/env python
+
+import sys
+from cmd import Cmd
+from networkpinger import client
+
+import fnmatch
+
+class networkpingercli(Cmd):
+    prompt = 'pinger> '
+
+    def __init__(self, ini_file):
+        Cmd.__init__(self)
+        self.ac = client.Client(ini_file)
+
+    def downips(self):
+        return self.ac.get_down_addrs()
+
+    def do_down(self, foo):
+        """List down nodes"""
+        d = list (self.ac.get_down())
+        print dictarrayprint( d, ["addr", "name", "time", "ok", "reason", "cur_note"])
+    def do_up(self, foo):
+        """List up nodes"""
+        d = list (self.ac.get_up())
+        print dictarrayprint( d, ["addr", "name", "time", "uptime", "ok", "reason", "cur_note","count"])
+    def do_notok(self, foo):
+        """List not ok nodes"""
+        d = list (self.ac.get_down())
+        print dictarrayprint( d, ["addr", "name", "time", "ok", "reason", "cur_note"])
+
+    #TODO: fix all below functions
+    def do_note(self, line):
+        """Usage: note <ip> <note>"""
+        try :
+            ip, note = line.split(" ", 1)
+        except :
+            return self.do_help('note')
+        note = note.strip()
+        for ip in fnmatch.filter(self.downips(), ip):
+            self.ac.set_note(ip, note)
+            print "note for %s set to %s" % (ip, note)
+    def complete_note(self, text, line, begidx, endidx):
+        #print ">%s< >%s< >%s< >%s<" % (text, line, begidx, endidx)
+        return [ip for ip in self.downips() if ip.startswith(text)]
+
+    def do_reason(self, line):
+        """Usage: reason <ip> <unexpected,maintenance,expected-power,unexpected-power,false-nmm>"""
+        try :
+            ip, reason = line.split(" ", 1)
+        except :
+            return self.do_help('note')
+        reason = reason.strip()
+        for ip in fnmatch.filter(self.downips(), ip):
+            self.ac.set_reason(ip, reason)
+            print "reason for %s set to %s" % (ip, reason)
+    def complete_reason(self, text, line, begidx, endidx):
+        #print ">%s< >%s< >%s< >%s<" % (text, line, begidx, endidx)
+        if text.startswith("1"):
+            return [x['ip'] for x in self.ac.downnodes() if x['ip'].startswith(text)]
+        return [x for x in ["unexpected","maintenance", "expected-power","unexpected-power","false-nmm"] if x.startswith(text)]
+
+    def do_ok(self, ip):
+        """Usage: ok <ip>
+        set a down record to be ok"""
+        if not ip:
+            return self.do_help('ok')
+
+        for ip in fnmatch.filter(self.downips(), ip):
+            self.ac.set_ok(ip, True)
+            print "%s set to ok" % (ip)
+    def complete_ok(self, text, line, begidx, endidx):
+        #print ">%s< >%s< >%s< >%s<" % (text, line, begidx, endidx)
+        return [x['ip'] for x in self.ac.notoknodes() if x['ip'].startswith(text)]
+
+    def do_bad(self, ip):
+        """Usage: bad <ip>
+        set a down record to be not ok"""
+        if not ip:
+            return self.do_help('bad')
+        for ip in fnmatch.filter(self.downips(), ip):
+            self.ac.set_ok(ip, False)
+            print "%s set to not ok" % (ip)
+    def complete_bad(self, text, line, begidx, endidx):
+        #print ">%s< >%s< >%s< >%s<" % (text, line, begidx, endidx)
+        return [x['ip'] for x in self.ac.downnodes() if x['ip'].startswith(text) and x['ok']]
+
+    def do_reachable(self, ip):
+        """Usage: reachable <ip>
+        Set this ip to be reachable"""
+        if not ip:
+            return self.do_help('reachable')
+        for ip in fnmatch.filter(self.downips(), ip):
+            self.ac.set_reachable(ip)
+            print "%s set to be reachable" % (ip)
+    def complete_reachable(self, text, line, begidx, endidx):
+        #print ">%s< >%s< >%s< >%s<" % (text, line, begidx, endidx)
+        return [x['ip'] for x in self.ac.downnodes() if x['ip'].startswith(text)]
+
+    def do_unreachable(self, ip):
+        """Usage: unreachable <ip>
+        Set this ip to be unreachable"""
+        if not ip:
+            return self.do_help('unreachable')
+        for ip in fnmatch.filter(self.downips(), ip):
+            self.ac.set_unreachable(ip)
+            print "%s set to be unreachable" % (ip)
+    def complete_unreachable(self, text, line, begidx, endidx):
+        return ['169.226.']
+
+    def do_EOF(self, x):
+        print
+        print "Goodbye!"
+        sys.exit(0)
+
+def dictarrayprint(ar, order=None, header=True):
+    #allow for an empty array
+    #if the array is empty and no order is passed, return ""
+    #otherwise generate just the header
+    if not ar:
+        if not order:
+            return ""
+        first = dict([(x,x) for x in order])
+    else :
+        first = ar[0]
+    if header: #insert a new row of just the keys, the next loop will do the rest
+        new = dict([(x,x.capitalize()) for x in first.keys()]) 
+        new = [new]
+    else :
+        new = []
+    #figure out what the longest column in each row is
+    maxes = dict([(a,len(str(b))) for a,b in first.items()])
+    for x in new + ar:
+        for k, v in x.items():
+            size = len(str(v))
+            if size > maxes[k]:
+                maxes[k] = size
+    
+    maxesfmt = dict([(x, "%%-%ds" % (y+1)) for x,y in  maxes.items()])
+    if order:
+        it = order
+    else :
+        it = first #will iterate over the keys however
+    
+    table = []
+
+    for x in new + ar:
+        row = []
+        for c in it:
+            row.append( maxesfmt[c] % x[c] )
+        line = " ".join(row).strip()
+        table.append(line)
+
+    return "\n".join(table)
+        
+if __name__ == "__main__":
+    ini_file = sys.argv[1]
+    a=networkpingercli(ini_file)
+    a.cmdloop()
