@@ -10,7 +10,7 @@ class Client:
         urllib2.install_opener(opener)
     
     def do(self, page, **kwargs):
-        url = "http://%s/%s" % (self.h, page)
+        url = "%s/%s" % (self.h, page)
         data = None
         if kwargs:
             data = urllib.urlencode(kwargs)
@@ -20,24 +20,24 @@ class Client:
         return simplejson.loads(self.do(page, **kwargs))
 
     def get_up_addrs(self):
-        return self.do_json("alerts/up_addrs_json")['addrs']
+        return self.do_json("up_addrs_json")['addrs']
     def get_down_addrs(self):
-        return self.do_json("alerts/down_addrs_json")['addrs']
+        return self.do_json("down_addrs_json")['addrs']
 
     def set_down(self, addr):
-        return self.do_json("alerts/set_down", addr=addr)['alert']
+        return self.do_json("set_down", addr=addr)['alert']
 
     def set_up(self, addr):
-        return self.do_json("alerts/set_up", addr=addr)['alert']
+        return self.do_json("set_up", addr=addr)['alert']
 
     def get_down(self):
-        return self.do_json("alerts/down_json")['down']
+        return self.do_json("down_json")['down']
 
     def get_up(self):
-        return self.do_json("alerts/up_json")['up']
+        return self.do_json("up_json")['up']
 
     def update(self, alert_id, **kwargs):
-        return self.do_json("alerts/update/%d" % alert_id, **kwargs)
+        return self.do_json("update/%d" % alert_id, **kwargs)
     
     def set_ok(self, alert_id):
         return self.update(alert_id, ok='true')
