@@ -20,7 +20,7 @@ from pylons.decorators.cache import beaker_cache
 from repoze.what.predicates import has_permission
 from repoze.what.plugins.pylonshq import ActionProtector
 
-mycache = cache.get_cache('alerts', type='memory', expiretime=10)
+mycache = cache.get_cache('alerts', type='memory', expiretime=60)
 def get_down():
     f = model.Alert.query_down().all
     return mycache.get_value(key='down', createfunc=f)
@@ -28,6 +28,9 @@ def get_down():
 def get_up():
     f = model.Alert.query_recent_up
     return mycache.get_value(key='up', createfunc=f)
+
+def get_all_up():
+    return mycache.get_value(key="all_up", createfunc=model.Host.get_up_addresses)
 
 class AlertsController(BaseController):
 
@@ -76,7 +79,7 @@ class AlertsController(BaseController):
         addr = request.params.get("addr")
         h = model.Host.get_by_addr(addr)
         a = h.add_alert()
-        mycache.remove_value("down")
+        self._clear_caches()
         return {'alert': a.to_dict()}
 
     @jsonify
@@ -89,8 +92,7 @@ class AlertsController(BaseController):
 
         a.up = True
         model.Session.commit()
-        mycache.remove_value("down")
-        mycache.remove_value("up")
+        self._clear_caches()
         return {'alert': a.to_dict()}
 
     @jsonify
@@ -117,7 +119,7 @@ class AlertsController(BaseController):
     @jsonify
     @ActionProtector(has_permission('see-alerts'))
     def up_addrs_json(self):
-        return {'addrs': [a for a in model.Host.get_up_addresses()]}
+        return {'addrs': [a for a in get_all_up()]}
     @jsonify
     @ActionProtector(has_permission('see-alerts'))
     def down_addrs_json(self):
@@ -161,4 +163,5 @@ class AlertsController(BaseController):
     def _clear_caches(self):
         mycache.remove_value("down")
         mycache.remove_value("up")
+        mycache.remove_value("all_up")
         return "ok"
