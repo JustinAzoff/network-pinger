@@ -11,6 +11,44 @@ from routes.middleware import RoutesMiddleware
 
 from networkpinger.config.environment import load_environment
 
+
+def add_auth(app):
+
+    # We need to set up the repoze.who components used by repoze.what for
+    # authentication
+    from repoze.who.plugins.htpasswd import HTPasswdPlugin, crypt_check
+    from repoze.who.plugins.basicauth import BasicAuthPlugin
+    htpasswd = HTPasswdPlugin('passwd', crypt_check)
+    basicauth = BasicAuthPlugin('Alerts')
+    identifiers = [('basicauth', basicauth)]
+    authenticators = [('htpasswd', htpasswd)]
+    challengers = [('basicauth', basicauth)]
+    mdproviders = []
+
+    # We'll use group and permission based exclusively on INI files
+    from repoze.what.plugins.ini import INIGroupAdapter
+    from repoze.what.plugins.ini import INIPermissionsAdapter
+
+    groups = {'all_groups': INIGroupAdapter('groups.ini')}
+    permissions = {'all_perms': INIPermissionsAdapter('permissions.ini')}
+
+    # Finally, we create the repoze.what middleware
+    import logging
+
+    from repoze.what.middleware import setup_auth
+
+    middleware = setup_auth(
+        app = app,
+        group_adapters = groups,
+        permission_adapters = permissions, 
+        identifiers = identifiers, 
+        authenticators = authenticators,
+        challengers = challengers, 
+        mdproviders = mdproviders, 
+        log_level = logging.DEBUG
+    )
+    return middleware
+
 def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
 
@@ -58,6 +96,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         else:
             app = StatusCodeRedirect(app, [400, 401, 403, 404, 500])
 
+    app = add_auth(app)
     # Establish the Registry for this application
     app = RegistryManager(app)
 

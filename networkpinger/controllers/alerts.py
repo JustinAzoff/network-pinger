@@ -16,6 +16,10 @@ from webhelpers.feedgenerator import Atom1Feed
 
 from pylons import cache
 from pylons.decorators.cache import beaker_cache
+
+from repoze.what.predicates import has_permission
+from repoze.what.plugins.pylonshq import ActionProtector
+
 mycache = cache.get_cache('alerts', type='memory', expiretime=10)
 def get_down():
     f = model.Alert.query_down().all
@@ -28,16 +32,20 @@ def get_up():
 class AlertsController(BaseController):
 
     @beaker_cache(expire=600, type="memory")
+    @ActionProtector(has_permission('see-alerts'))
     def index(self):
         return render('/alerts/index.mako')
 
+    @ActionProtector(has_permission('see-alerts'))
     def down(self):
         c.down = get_down()
         return render('/alerts/down.mako')
+    @ActionProtector(has_permission('see-alerts'))
     def up(self):
         c.up = get_up()
         return render('/alerts/up.mako')
 
+    @ActionProtector(has_permission('see-alerts'))
     def addr(self, id):
         addr = id
         h = model.Host.get_by_addr(addr)
@@ -45,21 +53,25 @@ class AlertsController(BaseController):
         c.alerts = h.alerts.all()
         return render('/alerts/addr.mako')
 
+    @ActionProtector(has_permission('see-alerts'))
     def notes(self, id):
         c.alert = model.Session.query(model.Alert).get(id)
         return render('/alerts/notes.mako')
 
     @jsonify
+    @ActionProtector(has_permission('see-alerts'))
     def up_json(self):
         up = get_up()
         return {'up': [c.to_dict() for c in up]}
 
     @jsonify
+    @ActionProtector(has_permission('see-alerts'))
     def down_json(self):
         down = get_down()
         return {'down': [c.to_dict() for c in down]}
 
     @jsonify
+    @ActionProtector(has_permission('edit-alerts'))
     def set_down(self):
         addr = request.params.get("addr")
         h = model.Host.get_by_addr(addr)
@@ -68,6 +80,7 @@ class AlertsController(BaseController):
         return {'alert': a.to_dict()}
 
     @jsonify
+    @ActionProtector(has_permission('edit-alerts'))
     def set_up(self):
         addr = request.params.get("addr")
         a = model.Alert.query_down().filter_by(addr=addr).first()
@@ -81,6 +94,7 @@ class AlertsController(BaseController):
         return {'alert': a.to_dict()}
 
     @jsonify
+    @ActionProtector(has_permission('edit-alerts'))
     def update(self, id):
         a = model.Session.query(model.Alert).get(id)
         if 'ok' in request.params:
@@ -96,18 +110,21 @@ class AlertsController(BaseController):
             a.add_note(note_short, note_long)
 
         model.Session.commit()
-        self.clear_caches()
+        self._clear_caches()
 
         return {'alert': a.to_dict()}
 
     @jsonify
+    @ActionProtector(has_permission('see-alerts'))
     def up_addrs_json(self):
         return {'addrs': [a for a in model.Host.get_up_addresses()]}
     @jsonify
+    @ActionProtector(has_permission('see-alerts'))
     def down_addrs_json(self):
         return {'addrs': [a.addr for a in get_down()]}
 
     @validate(schema=forms.AddNote(),form='notes', on_get=True)
+    @ActionProtector(has_permission('edit-alerts'))
     def addnote(self, id):
         a = model.Session.query(model.Alert).filter_by(id=id).one()
         short = self.form_result.get("short")
@@ -122,6 +139,7 @@ class AlertsController(BaseController):
 
         redirect_to(action="index")
 
+    @ActionProtector(has_permission('see-alerts'))
     def feed(self):
         alerts = model.Session.query(model.Alert)
         alerts = alerts.order_by(model.sa.desc(model.Alert.time)).limit(100)
@@ -140,7 +158,7 @@ class AlertsController(BaseController):
         response.content_type = 'application/atom+xml'
         return f.writeString('utf-8')
 
-    def clear_caches(self):
+    def _clear_caches(self):
         mycache.remove_value("down")
         mycache.remove_value("up")
         return "ok"

@@ -2,12 +2,12 @@ import urllib, urllib2
 import simplejson
 
 class Client:
-    def __init__(self, host):
+    def __init__(self, host, user='poller', password='poller'):
         self.h = host
-        #authinfo = urllib2.HTTPBasicAuthHandler()
-        #authinfo.add_password("Cisco Controller", host, user, password)
-        #opener = urllib2.build_opener(authinfo)
-        #urllib2.install_opener(opener)
+        authinfo = urllib2.HTTPBasicAuthHandler()
+        authinfo.add_password("Alerts", host, user, password)
+        opener = urllib2.build_opener(authinfo)
+        urllib2.install_opener(opener)
     
     def do(self, page, **kwargs):
         url = "http://%s/%s" % (self.h, page)
