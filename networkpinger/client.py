@@ -18,7 +18,7 @@ class Client:
         url = "%s/%s" % (self.h, page)
         data = None
         if kwargs:
-            data = urllib.urlencode(kwargs)
+            data = urlencode(kwargs)
             resp, content = self.http.request(url, 'POST', data)
         else:
             resp, content = self.http.request(url)
