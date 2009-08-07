@@ -45,6 +45,7 @@ class AlertsController(BaseController):
 
     @ActionProtector(has_permission('see-alerts'))
     def down(self):
+        c.clock = time.strftime("%H:%M:%S")
         c.down = get_down()
         return render('/alerts/down.mako')
     @ActionProtector(has_permission('see-alerts'))
