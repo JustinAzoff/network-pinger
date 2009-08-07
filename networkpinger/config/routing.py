@@ -24,4 +24,8 @@ def make_map():
     map.connect('/{controller}/{action}')
     map.connect('/{controller}/{action}/{id}')
 
+    map.connect('/', controller='alerts', action='index')
+    map.connect('/{action}',      controller='alerts')
+    map.connect('/{action}/{id}', controller='alerts')
+
     return map
