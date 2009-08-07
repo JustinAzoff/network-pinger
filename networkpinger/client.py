@@ -50,3 +50,6 @@ class Client:
 
     def set_note(self, alert_id, short, long):
         return self.update(alert_id, note_short=short, note_long=long)
+
+    def add_host(self, addr, name):
+        return self.do("add_host", addr=addr, name=name)

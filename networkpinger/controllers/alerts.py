@@ -151,6 +151,14 @@ class AlertsController(BaseController):
 
         redirect_to(action="index")
 
+    @ActionProtector(has_permission('edit-alerts'))
+    def add_host(self):
+        addr = request.params.get("addr")
+        name = request.params.get("name")
+        h = model.Host.add(addr, name)
+        model.Session.commit()
+        return "ok"
+
     @ActionProtector(has_permission('see-alerts'))
     def feed(self):
         etag_cache(get_last())
