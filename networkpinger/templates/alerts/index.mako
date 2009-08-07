@@ -13,4 +13,4 @@ Loading initial alerts...
 <div id="up">
 </div>
 
-<script src="/js/alerts.js"></script>
+<script src="${h.url_for("alerts_js")}"></script>

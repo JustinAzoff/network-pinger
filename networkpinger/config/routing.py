@@ -28,4 +28,7 @@ def make_map():
     map.connect('/{action}',      controller='alerts')
     map.connect('/{action}/{id}', controller='alerts')
 
+    map.connect('alerts_css', '/style.css', _static=True)
+    map.connect('alerts_js', '/js/alerts.js', _static=True)
+
     return map
