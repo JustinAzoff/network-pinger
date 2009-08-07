@@ -1,11 +1,13 @@
+from networkpinger.config import read_config
 import urllib, urllib2
 import simplejson
 
 class Client:
-    def __init__(self, host, user='poller', password='poller'):
-        self.h = host
+    def __init__(self, client_ini_path):
+        cfg = read_config(client_ini_path)
+        self.h = cfg['host']
         authinfo = urllib2.HTTPBasicAuthHandler()
-        authinfo.add_password("Alerts", host, user, password)
+        authinfo.add_password("Alerts", self.h, cfg['username'], cfg['password'])
         opener = urllib2.build_opener(authinfo)
         urllib2.install_opener(opener)
     

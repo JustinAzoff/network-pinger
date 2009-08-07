@@ -5,15 +5,11 @@ from networkpinger.lib import nmapping
 import sys
 import time
 
-SERVER = 'localhost:8000'
-
 def log(s):
     sys.stdout.write(s + "\n")
     sys.stdout.flush()
 
-def monitor_up(c=None):
-    if not c:
-        c = client.Client(SERVER)
+def monitor_up(c):
     ips = c.get_up_addrs()
     if not ips:
         return
@@ -28,9 +24,7 @@ def monitor_up(c=None):
     for ip in down:
         c.set_down(ip)
 
-def monitor_down(c=None):
-    if not c:
-        c = client.Client(SERVER)
+def monitor_down(c):
     ips = c.get_down_addrs()
     if not ips:
         return
@@ -41,20 +35,20 @@ def monitor_down(c=None):
         c.set_up(ip)
 
 
-def down_loop():
-    c = client.Client(SERVER)
+def down_loop(c):
     while 1:
         monitor_down(c)
         time.sleep(2)
 
-def up_loop():
-    c = client.Client(SERVER)
+def up_loop(c):
     while 1:
         monitor_up(c)
         time.sleep(10)
 
 def main():
-    if sys.argv[1]=='up':
-        up_loop()
-    elif sys.argv[1]=='down':
-        down_loop()
+    ini_file = sys.argv[1]
+    c = client.Client(ini_file)
+    if sys.argv[2]=='up':
+        up_loop(c)
+    elif sys.argv[2]=='down':
+        down_loop(c)
