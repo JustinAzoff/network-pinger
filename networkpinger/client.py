@@ -1,22 +1,28 @@
 from networkpinger.config import read_config
-import urllib, urllib2
+import httplib2
+from urllib import urlencode
+import os
+
 import simplejson
 
 class Client:
     def __init__(self, client_ini_path):
         cfg = read_config(client_ini_path)
         self.h = cfg['host']
-        authinfo = urllib2.HTTPBasicAuthHandler()
-        authinfo.add_password("Alerts", self.h, cfg['username'], cfg['password'])
-        opener = urllib2.build_opener(authinfo)
-        urllib2.install_opener(opener)
+
+        h = httplib2.Http(os.path.expanduser("~/.httplib2_cache"))
+        h.add_credentials(cfg['username'], cfg['password'])
+        self.http = h
     
     def do(self, page, **kwargs):
         url = "%s/%s" % (self.h, page)
         data = None
         if kwargs:
             data = urllib.urlencode(kwargs)
-        return urllib2.urlopen(url, data).read()
+            resp, content = self.http.request(url, 'POST', data)
+        else:
+            resp, content = self.http.request(url)
+        return content
 
     def do_json(self, page, **kwargs):
         return simplejson.loads(self.do(page, **kwargs))
