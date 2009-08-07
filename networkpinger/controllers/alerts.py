@@ -20,7 +20,7 @@ from pylons.decorators.cache import beaker_cache
 from repoze.what.predicates import has_permission
 from repoze.what.plugins.pylonshq import ActionProtector
 
-mycache = cache.get_cache('alerts', type='memory', expiretime=60)
+mycache = cache.get_cache('alerts', type='memory', expiretime=300)
 def get_down():
     f = model.Alert.query_down().all
     return mycache.get_value(key='down', createfunc=f)
