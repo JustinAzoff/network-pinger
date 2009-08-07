@@ -1,7 +1,7 @@
 import logging
 
 from pylons import request, response, session, tmpl_context as c
-from pylons.controllers.util import abort, redirect_to, url_for
+from pylons.controllers.util import abort, redirect_to, url_for, etag_cache
 from pylons.decorators import jsonify
 
 from networkpinger.lib.base import BaseController, render, validate
@@ -32,6 +32,10 @@ def get_up():
 def get_all_up():
     return mycache.get_value(key="all_up", createfunc=model.Host.get_up_addresses)
 
+import time
+def get_last():
+    return mycache.get_value(key="last_time", createfunc=time.ctime)
+
 class AlertsController(BaseController):
 
     @beaker_cache(expire=600, type="memory")
@@ -45,6 +49,7 @@ class AlertsController(BaseController):
         return render('/alerts/down.mako')
     @ActionProtector(has_permission('see-alerts'))
     def up(self):
+        etag_cache(get_last())
         c.up = get_up()
         return render('/alerts/up.mako')
 
@@ -64,12 +69,14 @@ class AlertsController(BaseController):
     @jsonify
     @ActionProtector(has_permission('see-alerts'))
     def up_json(self):
+        etag_cache(get_last())
         up = get_up()
         return {'up': [c.to_dict() for c in up]}
 
     @jsonify
     @ActionProtector(has_permission('see-alerts'))
     def down_json(self):
+        etag_cache(get_last())
         down = get_down()
         return {'down': [c.to_dict() for c in down]}
 
@@ -119,10 +126,12 @@ class AlertsController(BaseController):
     @jsonify
     @ActionProtector(has_permission('see-alerts'))
     def up_addrs_json(self):
+        etag_cache(get_last())
         return {'addrs': [a for a in get_all_up()]}
     @jsonify
     @ActionProtector(has_permission('see-alerts'))
     def down_addrs_json(self):
+        etag_cache(get_last())
         return {'addrs': [a.addr for a in get_down()]}
 
     @validate(schema=forms.AddNote(),form='notes', on_get=True)
@@ -143,6 +152,7 @@ class AlertsController(BaseController):
 
     @ActionProtector(has_permission('see-alerts'))
     def feed(self):
+        etag_cache(get_last())
         alerts = model.Session.query(model.Alert)
         alerts = alerts.order_by(model.sa.desc(model.Alert.time)).limit(100)
         f = Atom1Feed(
@@ -160,8 +170,14 @@ class AlertsController(BaseController):
         response.content_type = 'application/atom+xml'
         return f.writeString('utf-8')
 
+    @ActionProtector(has_permission('see-alerts'))
+    def last(self):
+        etag_cache(get_last())
+        return get_last()
+
     def _clear_caches(self):
         mycache.remove_value("down")
         mycache.remove_value("up")
         mycache.remove_value("all_up")
+        mycache.remove_value("last_time")
         return "ok"
