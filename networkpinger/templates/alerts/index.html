@@ -1,4 +1,5 @@
-<%inherit file="../base.mako"/>
+{% extends "../base.html" %}
+{% block body %}
 
 Seconds to refresh: <b id="time_remaining">15</b>.
 <a onclick="load_alerts();return false;" href="/alerts/index">Refresh</a>
@@ -13,4 +14,5 @@ Loading initial alerts...
 <div id="up">
 </div>
 
-<script src="/js/alerts.js"></script>
+<script src={{ static_url("js/alerts.js") }}></script>
+{% end %}

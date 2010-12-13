@@ -1,0 +1,27 @@
+<h2>Hosts that were down and came back up</h2>
+{% if up %}
+<table border=1 class="alert">
+<thead>
+<tr>
+<th>Addr</th> <th>Name</th> <th>Time</th> <th>Uptime</th> <th>Downtime</th> <th>Ok</th> <th>Reason</th> <th>Note</th> <th>Count</th>
+</tr>
+</thead>
+<tbody>
+{% for a in up %}
+<tr class="up {{["notok","ok"][a.ok]}}">
+    <td> <a href="/alerts/addr/{{a.addr}}">{{a.addr}}</a></td>
+    <td> {{a.name}} </td>
+    <td> {{a.time.strftime("%Y-%m-%d %H:%M:%S")}} </td>
+    <td> {{a.uptime.strftime("%Y-%m-%d %H:%M:%S")}} </td>
+    <td> {{distance_of_time_in_words(a.time,a.uptime)}}</td>
+    <td> {{a.ok}} </td>
+    <td> {{a.reason}} </td>
+    <td> <a href="/alerts/nodes/{{a.id}}">{{a.cur_note or '[no note]'}}</a> </td>
+    <td> {{a.count}} </td>
+</tr>
+{% end %}
+</tbody>
+</table>
+{% else %}
+    <p>Nothing was down</p>
+{% end %}

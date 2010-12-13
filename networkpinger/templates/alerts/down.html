@@ -1,0 +1,25 @@
+<h2>Hosts that are down(<span id="num_alerts">{{len(down)}}</span>)</h2>
+{% if down %}
+<table border=1 class="alert">
+<thead>
+<tr>
+<th>Addr</th> <th>Name</th> <th>Time</th> <th>Downtime</th><th>Ok</th> <th>Reason</th> <th>Note</th>
+</tr>
+</thead>
+<tbody>
+{% for a in down %}
+<tr class="down {{["notok","ok"][a.ok]}}" seconds={{a.time.strftime("%s")}}>
+    <td> <a href="/alerts/addr/{{a.addr}}">{{a.addr}}</a></td>
+    <td> {{a.name}} </td>
+    <td class="time">{{a.time.strftime("%Y-%m-%d %H:%M:%S")}}</td>
+    <td class="downtime">{{time_ago_in_words(a.time)}}</td>
+    <td> {{a.ok}} </td>
+    <td> {{a.reason}} </td>
+    <td> <a href="/alerts/nodes/{{a.id}}">{{a.cur_note or '[no note]'}}</a> </td>
+</tr>
+{% end %}
+</tbody>
+</table>
+{% else %}
+    <p>Nothing is down</p>
+{% end %}
