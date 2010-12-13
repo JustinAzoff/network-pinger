@@ -20,9 +20,9 @@ class Client:
         return simplejson.loads(self.do(page, **kwargs))
 
     def get_up_addrs(self):
-        return self.do_json("alerts/up_addrs_json")['addrs']
+        return self.do_json("alerts/up_addrs.json")['addrs']
     def get_down_addrs(self):
-        return self.do_json("alerts/down_addrs_json")['addrs']
+        return self.do_json("alerts/down_addrs.json")['addrs']
 
     def set_down(self, addr):
         return self.do_json("alerts/set_down", addr=addr)['alert']
@@ -31,7 +31,7 @@ class Client:
         return self.do_json("alerts/set_up", addr=addr)['alert']
 
     def get_down(self):
-        return self.do_json("alerts/down_json")['down']
+        return self.do_json("alerts/down.json")['down']
 
     def get_up(self):
-        return self.do_json("alerts/up_json")['up']
+        return self.do_json("alerts/up.json")['up']

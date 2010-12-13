@@ -11,7 +11,7 @@ def log(s):
 
 def monitor_up(c=None):
     if not c:
-        c = client.Client('localhost:8000')
+        c = client.Client('localhost:8888')
     ips = c.get_up_addrs()
     if not ips:
         return
@@ -28,7 +28,7 @@ def monitor_up(c=None):
 
 def monitor_down(c=None):
     if not c:
-        c = client.Client('localhost:8000')
+        c = client.Client('localhost:8888')
     ips = c.get_down_addrs()
     if not ips:
         return
@@ -40,13 +40,13 @@ def monitor_down(c=None):
 
 
 def down_loop():
-    c = client.Client('localhost:8000')
+    c = client.Client('localhost:8888')
     while 1:
         monitor_down(c)
         time.sleep(2)
 
 def up_loop():
-    c = client.Client('localhost:8000')
+    c = client.Client('localhost:8888')
     while 1:
         monitor_up(c)
         time.sleep(10)
