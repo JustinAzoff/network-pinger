@@ -1,5 +1,8 @@
 import urllib, urllib2
-import simplejson
+try :
+    import json
+except ImportError:
+    import simplejson as json
 
 class Client:
     def __init__(self, host):
@@ -17,7 +20,7 @@ class Client:
         return urllib2.urlopen(url, data).read()
 
     def do_json(self, page, **kwargs):
-        return simplejson.loads(self.do(page, **kwargs))
+        return json.loads(self.do(page, **kwargs))
 
     def get_up_addrs(self):
         return self.do_json("alerts/up_addrs.json")['addrs']
