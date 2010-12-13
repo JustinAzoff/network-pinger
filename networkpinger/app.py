@@ -72,7 +72,7 @@ class AlertsSetDownHandler(tornado.web.RequestHandler):
         h = model.Host.get_by_addr(addr)
         a = h.add_alert()
         logger.info("pinger addr=%s state=down" % addr)
-        msg = json_encode({'alert': a.to_dict()})
+        msg = json_encode({'down': a.to_dict()})
         self.finish(msg)
 
         mycache.remove_value("down")
@@ -87,7 +87,7 @@ class AlertsSetUpHandler(tornado.web.RequestHandler):
         a.up = True
         model.Session.commit()
         logger.info("pinger addr=%s state=up" % addr)
-        msg = json_encode({'alert': a.to_dict()})
+        msg = json_encode({'up': a.to_dict()})
         self.finish(msg)
 
         mycache.remove_value("down")

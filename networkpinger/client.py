@@ -28,10 +28,10 @@ class Client:
         return self.do_json("alerts/down_addrs.json")['addrs']
 
     def set_down(self, addr):
-        return self.do_json("alerts/set_down", addr=addr)['alert']
+        return self.do_json("alerts/set_down", addr=addr)['down']
 
     def set_up(self, addr):
-        return self.do_json("alerts/set_up", addr=addr)['alert']
+        return self.do_json("alerts/set_up", addr=addr)['up']
 
     def get_down(self):
         return self.do_json("alerts/down.json")['down']
