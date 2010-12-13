@@ -51,6 +51,11 @@ var setup_socket_io = function(){
     s.addEvent('message', function(data) {
         //log_message(data);
         load_alerts();
+        msg = $.parseJSON(data);
+        if(msg.down) {
+            if(console.log) console.log("Playing alarm");
+            play_alarm();
+        }
     });
 
     s.addEvent('disconnect', function(){
@@ -66,6 +71,10 @@ var setup_socket_io = function(){
     //    return false;
     //});
 };
+
+var play_alarm = function(){
+    $("#sound").get(0).play();
+}
 
 $(function(){
     setInterval("update_time()", 1 * 1000);
