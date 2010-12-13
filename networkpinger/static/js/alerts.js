@@ -73,7 +73,10 @@ var setup_socket_io = function(){
 };
 
 var play_alarm = function(){
-    $("#sound").get(0).play();
+    var s = $("#sound").get(0);
+    //FIXME, should not need to do this:
+    s.src = s.src;
+    s.play();
 }
 
 $(function(){
