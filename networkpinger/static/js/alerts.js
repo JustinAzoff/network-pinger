@@ -7,7 +7,7 @@ var log_message = function(s,d){
 }
 
 var load_alerts = function(){
-    log_message("Loading...");
+    //log_message("Loading...");
     load_down();
     load_up();
     $("#time_remaining").text(15); //try again in 15 seconds
@@ -39,8 +39,36 @@ var update_time = function(){
         load_alerts();
 }
 
+var setup_socket_io = function(){
+    var s = new io.Socket("localhost", {port: 8888});
+    s.connect();
+    
+    s.addEvent('connect', function() {
+        //s.send('New participant joined');
+        log_message("Connected to socket!");
+    });
+    
+    s.addEvent('message', function(data) {
+        //log_message(data);
+        load_alerts();
+    });
+
+    s.addEvent('disconnect', function(){
+        log_message("disconnected:(");
+        setTimeout("setup_socket_io()", 2*1000);
+    });
+
+    //send the message when submit is clicked
+    //$('#chatform').submit(function (evt) {
+    //    var line = $('#chatform [type=text]').val()
+    //    $('#chatform [type=text]').val('')
+    //    s.send(line);
+    //    return false;
+    //});
+};
+
 $(function(){
     setInterval("update_time()", 1 * 1000);
     load_alerts();
+    setup_socket_io()
 });
-

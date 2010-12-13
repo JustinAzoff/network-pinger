@@ -9,6 +9,9 @@ from tornado.escape import json_encode
 
 from tornado.options import define, options
 
+from tornad_io import SocketIOHandler
+from tornad_io import SocketIOServer
+
 from webhelpers.date import time_ago_in_words, distance_of_time_in_words
 
 from beaker.cache import CacheManager
@@ -69,7 +72,11 @@ class AlertsSetDownHandler(tornado.web.RequestHandler):
         h = model.Host.get_by_addr(addr)
         a = h.add_alert()
         logger.info("pinger addr=%s state=down" % addr)
-        self.finish(json_encode({'alert': a.to_dict()}))
+        msg = json_encode({'alert': a.to_dict()})
+        self.finish(msg)
+
+        mycache.remove_value("down")
+        broadcast(msg)
 
 class AlertsSetUpHandler(tornado.web.RequestHandler):
     def post(self):
@@ -80,8 +87,12 @@ class AlertsSetUpHandler(tornado.web.RequestHandler):
         a.up = True
         model.Session.commit()
         logger.info("pinger addr=%s state=up" % addr)
-        self.finish(json_encode({'alert': a.to_dict()}))
+        msg = json_encode({'alert': a.to_dict()})
+        self.finish(msg)
 
+        mycache.remove_value("down")
+        mycache.remove_value("up")
+        broadcast(msg)
 
 class AlertsUpAddrsJson(tornado.web.RequestHandler):
     def get(self):
@@ -91,6 +102,30 @@ class AlertsDownAddrsJson(tornado.web.RequestHandler):
     def get(self):
         self.finish(json_encode({'addrs': [a.addr for a in get_down()]}))
 
+participants = set()
+
+def broadcast(msg):
+    for p in participants:
+        p.send(msg)
+
+class Realtimehandler(SocketIOHandler):
+    """Socket.IO handler"""
+
+    def on_open(self, *args, **kwargs):
+        self.send("Welcome!")
+        participants.add(self)
+        logger.info("new participant")
+
+    #def on_message(self, message):
+    #    for p in participants:
+    #        p.send(message)
+
+    def on_close(self):
+        participants.remove(self)
+        for p in participants:
+            p.send("A user has left.")
+
+realtimeRoute = Realtimehandler.routes("socket.io/*")
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -108,6 +143,8 @@ class Application(tornado.web.Application):
 
             (r"/alerts/up_addrs.json", AlertsUpAddrsJson),
             (r"/alerts/down_addrs.json", AlertsDownAddrsJson),
+
+            realtimeRoute,
         ]
         settings = dict(
             page_title=u"Alerts",
@@ -117,6 +154,8 @@ class Application(tornado.web.Application):
             #xsrf_cookies=True,
             #cookie_secret="11oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
             login_url="/auth/login",
+            enabled_protocols = ['websocket', 'xhr-multipart', 'xhr-polling'],
+            socket_io_port = 8888,
         )
         tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -138,10 +177,9 @@ def main():
         from networkpinger import websetup
         websetup.setup_app()
         sys.exit(0)
-
-    http_server = tornado.httpserver.HTTPServer(Application())
-    http_server.listen(options.port)
-    tornado.ioloop.IOLoop.instance().start()
+    
+    application = Application()
+    socketio_server = SocketIOServer(application)
 
 
 if __name__ == "__main__":
