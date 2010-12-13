@@ -1,27 +1,21 @@
 #!/usr/bin/env python
+import sys
+import os
+
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
+from tornado.escape import json_encode
 
 from tornado.options import define, options
 
-import os
-
-from networkpinger import model
-from networkpinger.model.configure import configure
-configure(os.path.abspath(os.path.join(os.path.dirname(__file__), "../development.ini")))
-
 from webhelpers.date import time_ago_in_words, distance_of_time_in_words
-
-
-from tornado.escape import json_encode
-
-import logging
-logger = logging.getLogger()
-
 
 from beaker.cache import CacheManager
 from beaker.util import parse_cache_config_options
+
+import logging
+logger = logging.getLogger()
 
 cache_opts = {
     'cache.type': 'memory'
@@ -29,6 +23,9 @@ cache_opts = {
 
 cache = CacheManager(**parse_cache_config_options(cache_opts))
 mycache = cache.get_cache('alerts', type='memory', expiretime=10)
+
+
+from networkpinger import model
 
 def get_down():
     f = model.Alert.query_down().all
@@ -129,8 +126,19 @@ class Application(tornado.web.Application):
         #    user=options.mysql_user, password=options.mysql_password)
 
 define("port", default=8888, help="run on the given port", type=int)
+define("config", default="devel.ini", help="Config file")
+define("setup", default=False, help="perform application setup", type=bool)
+
 def main():
     tornado.options.parse_command_line()
+
+    model.configure(os.path.abspath(options.config))
+
+    if options.setup:
+        from networkpinger import websetup
+        websetup.setup_app()
+        sys.exit(0)
+
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.listen(options.port)
     tornado.ioloop.IOLoop.instance().start()

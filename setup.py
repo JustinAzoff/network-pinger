@@ -17,6 +17,8 @@ setup(
     install_requires=[
         "Tornado",
         "SQLAlchemy>=0.5",
+        "Webhelpers",
+        "beaker",
     ],
     setup_requires=["PasteScript>=1.6.3"],
     packages=find_packages(exclude=['ez_setup']),
@@ -28,13 +30,10 @@ setup(
     #        ('templates/**.mako', 'mako', {'input_encoding': 'utf-8'}),
     #        ('public/**', 'ignore', None)]},
     zip_safe=False,
-    paster_plugins=['PasteScript', 'Pylons'],
+    #paster_plugins=['PasteScript', 'Pylons'],
     entry_points="""
-    [paste.app_factory]
-    main = networkpinger.config.middleware:make_app
-
-    [paste.app_install]
-    main = pylons.util:PylonsInstaller
+    [console_scripts]
+    network-pinger-server   = networkpinger.app:main
     """,
     scripts=glob.glob("scripts/*"),
 )

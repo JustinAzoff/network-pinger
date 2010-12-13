@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-from networkpinger.model.configure import configure
-configure("/home/justin/code/network-pinger/development.ini")
+import sys
+from networkpinger.model import configure
+configure(sys.argv[1])
 
 from networkpinger import model
-
-import sys
 
 for line in sys.stdin:
     addr, name = line.strip().split(None, 1)

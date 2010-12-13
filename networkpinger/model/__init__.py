@@ -14,10 +14,10 @@ def init_model(engine):
     meta.engine = engine
 
 import ConfigParser
-def configure(filename='development.ini'):
+def configure(filename):
     c = ConfigParser.ConfigParser({'here':'./'})
     c.read(filename)
-    uri = c.get("app:main","sqlalchemy.url")
+    uri = c.get("server","dburi")
     init_model(sa.create_engine(uri))
 
 Base = declarative_base(metadata=meta.metadata)
