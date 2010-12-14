@@ -122,8 +122,6 @@ class Realtimehandler(SocketIOHandler):
 
     def on_close(self):
         participants.remove(self)
-        for p in participants:
-            p.send("A user has left.")
 
 realtimeRoute = Realtimehandler.routes("socket.io/*")
 
