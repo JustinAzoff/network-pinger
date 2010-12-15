@@ -40,7 +40,7 @@ var update_time = function(){
 }
 
 var setup_socket_io = function(){
-    var s = new io.Socket("localhost", {port: 8888});
+    var s = new io.Socket(document.location.hostname, {port: 8888});
     s.connect();
     
     s.addEvent('connect', function() {
