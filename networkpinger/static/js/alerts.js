@@ -10,7 +10,7 @@ var load_alerts = function(){
     //log_message("Loading...");
     load_down();
     load_up();
-    $("#time_remaining").text(15); //try again in 15 seconds
+    $("#time_remaining").text(30); //try again in 30 seconds
 }
 
 var load_down = function() {
