@@ -20,6 +20,7 @@ setup(
         "SQLAlchemy>=0.6",
         "Webhelpers",
         "beaker",
+        "ping_wrapper",
     ],
     setup_requires=["PasteScript>=1.6.3"],
     packages=find_packages(exclude=['ez_setup']),

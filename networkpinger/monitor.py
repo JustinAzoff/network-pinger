@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from networkpinger import client
-from networkpinger.lib import nmapping
+import ping_wrapper
 
 import sys
 import time
@@ -10,6 +10,7 @@ def log(s):
     sys.stdout.flush()
 
 def monitor_up(c=None):
+    pinger = ping_wrapper.get_backend(use_sudo=True)
     if not c:
         c = client.Client('localhost:8888')
     ips = c.get_up_addrs()
@@ -17,9 +18,9 @@ def monitor_up(c=None):
         return
     #give devices 2 changes to be up
     down = ips
-    _, down = nmapping.pingmanyupdown(down,use_sudo=False)
+    _, down = pinger.ping_many_updown(down)
     if down:
-        _, down = nmapping.pingmanyupdown(down,use_sudo=False)
+        _, down = pinger.ping_many_updown(down)
     if len(down):
         log('upmon up:%d down:%d' % (len(ips) - len(down), len(down)))
 
@@ -27,12 +28,13 @@ def monitor_up(c=None):
         c.set_down(ip)
 
 def monitor_down(c=None):
+    pinger = ping_wrapper.get_backend(use_sudo=True)
     if not c:
         c = client.Client('localhost:8888')
     ips = c.get_down_addrs()
     if not ips:
         return
-    up, down = nmapping.pingmanyupdown(ips,use_sudo=False)
+    up, down = pinger.ping_many_updown(ips)
     if len(up):
         log('downmon up:%d down:%d' % (len(up), len(down)))
     for ip in up:
