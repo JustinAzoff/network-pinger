@@ -33,6 +33,7 @@ def monitor_up(c=None):
     down = ips
     _, down = pinger.ping_many_updown(down)
     if down:
+        time.sleep(1)
         _, down = pinger.ping_many_updown(down)
     if len(down):
         log('upmon up:%d down:%d' % (len(ips) - len(down), len(down)))
