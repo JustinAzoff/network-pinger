@@ -39,37 +39,28 @@ var update_time = function(){
         load_alerts();
 }
 
-var setup_socket_io = function(){
-    var s = new io.Socket(document.location.hostname, {port: 8888});
-    s.connect();
+var setup_websocket = function(){
+    var s = new WebSocket("ws://" + document.location.hostname + ":8888/websocket");
     
-    s.addEvent('connect', function() {
+    s.onopen = function() {
         //s.send('New participant joined');
         log_message("Connected to socket!");
-    });
+    }
     
-    s.addEvent('message', function(data) {
+    s.onmessage = function(evt) {
         //log_message(data);
         load_alerts();
-        msg = $.parseJSON(data);
+        msg = $.parseJSON(evt.data);
         if(msg.down) {
             if(console.log) console.log("Playing alarm");
             play_alarm();
         }
-    });
+    }
 
-    s.addEvent('disconnect', function(){
+    s.onclose = function () {
         log_message("disconnected:(");
         setTimeout("setup_socket_io()", 2*1000);
-    });
-
-    //send the message when submit is clicked
-    //$('#chatform').submit(function (evt) {
-    //    var line = $('#chatform [type=text]').val()
-    //    $('#chatform [type=text]').val('')
-    //    s.send(line);
-    //    return false;
-    //});
+    }
 };
 
 var play_alarm = function(){
@@ -82,5 +73,5 @@ var play_alarm = function(){
 $(function(){
     setInterval("update_time()", 1 * 1000);
     load_alerts();
-    setup_socket_io()
+    setup_websocket()
 });

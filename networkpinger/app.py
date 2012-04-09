@@ -5,12 +5,10 @@ import os
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
+import tornado.websocket
 from tornado.escape import json_encode
 
 from tornado.options import define, options
-
-from tornad_io import SocketIOHandler
-from tornad_io import SocketIOServer
 
 from webhelpers.date import time_ago_in_words, distance_of_time_in_words
 
@@ -106,24 +104,19 @@ participants = set()
 
 def broadcast(msg):
     for p in participants:
-        p.send(msg)
+        p.write_message(msg)
 
-class Realtimehandler(SocketIOHandler):
-    """Socket.IO handler"""
 
-    def on_open(self, *args, **kwargs):
-        self.send("Welcome!")
+class Realtimehandler(tornado.websocket.WebSocketHandler):
+    """Websocket handler"""
+
+    def open(self):
+        self.write_message("Welcome!")
         participants.add(self)
         logger.info("new participant")
 
-    #def on_message(self, message):
-    #    for p in participants:
-    #        p.send(message)
-
     def on_close(self):
         participants.remove(self)
-
-realtimeRoute = Realtimehandler.routes("socket.io/*")
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -142,7 +135,8 @@ class Application(tornado.web.Application):
             (r"/alerts/up_addrs.json", AlertsUpAddrsJson),
             (r"/alerts/down_addrs.json", AlertsDownAddrsJson),
 
-            realtimeRoute,
+            (r"/alerts/down_addrs.json", AlertsDownAddrsJson),
+            (r"/websocket", Realtimehandler),
         ]
         settings = dict(
             page_title=u"Alerts",
@@ -177,7 +171,9 @@ def main():
         sys.exit(0)
     
     application = Application()
-    socketio_server = SocketIOServer(application)
+    http_server = tornado.httpserver.HTTPServer(application)
+    http_server.listen(options.port)
+    tornado.ioloop.IOLoop.instance().start()
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ import time
 import os
 from subprocess import Popen
 import simplejson
+import threading
 
 def run_scripts(status, hosts):
     ALERTS = simplejson.dumps(list(hosts))
@@ -29,7 +30,7 @@ def monitor_up(c=None):
     ips = c.get_up_addrs()
     if not ips:
         return
-    #give devices 2 changes to be up
+    #give devices 2 chances to be up
     down = ips
     _, down = pinger.ping_many_updown(down)
     if down:
@@ -41,6 +42,7 @@ def monitor_up(c=None):
 
     for ip in down:
         c.set_down(ip)
+    return len(down)
 
 def monitor_down(c=None):
     pinger = ping_wrapper.get_backend(use_sudo=True)
@@ -55,22 +57,36 @@ def monitor_down(c=None):
         run_scripts("up", up)
     for ip in up:
         c.set_up(ip)
+    return len(up)
 
 
 def down_loop():
     c = client.Client('localhost:8888')
-    while 1:
-        monitor_down(c)
-        time.sleep(2)
+    print "starting down loop"
+    while True:
+        up = monitor_down(c)
+        if not up:
+            time.sleep(2)
 
 def up_loop():
     c = client.Client('localhost:8888')
-    while 1:
-        monitor_up(c)
-        time.sleep(10)
+    print "starting up loop"
+    while True:
+        down = monitor_up(c)
+        if not down:
+            time.sleep(10)
 
 def main():
-    if sys.argv[1]=='up':
-        up_loop()
-    elif sys.argv[1]=='down':
-        down_loop()
+    u = threading.Thread(target=up_loop)
+    d = threading.Thread(target=down_loop)
+    u.start()
+    d.start()
+    try :
+        while u.isAlive() and d.isAlive():
+            u.join(1)
+            d.join(1)
+    except KeyboardInterrupt:
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
