@@ -36,7 +36,7 @@ def monitor_up(c=None):
     if down:
         time.sleep(3)
         _, down = pinger.ping_many_updown(down)
-    if len(down):
+    if down:
         log('upmon up:%d down:%d' % (len(ips) - len(down), len(down)))
         run_scripts("down", down)
 
@@ -52,7 +52,7 @@ def monitor_down(c=None):
     if not ips:
         return
     up, down = pinger.ping_many_updown(ips)
-    if len(up):
+    if up:
         log('downmon up:%d down:%d' % (len(up), len(down)))
         run_scripts("up", up)
     for ip in up:
