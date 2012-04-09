@@ -59,7 +59,7 @@ var setup_websocket = function(){
 
     s.onclose = function () {
         log_message("disconnected:(");
-        setTimeout("setup_socket_io()", 2*1000);
+        setTimeout("setup_websocket()", 2*1000);
     }
 };
 
