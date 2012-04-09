@@ -1,0 +1,33 @@
+{% extends "../base.html" %}
+{% block body %}
+<h2>Alerts for {{host.name}} ({{host.addr}})</h2>
+{% if host.alerts %}
+<table border=1 class="alert">
+<thead>
+<tr>
+<th>Time</th> <th>Uptime</th> <th>Downtime</th><th>Ok</th> <th>Reason</th> <th>Note</th>
+</tr>
+</thead>
+<tbody>
+{% for a in host.alerts %}
+<tr class="down {{["notok","ok"][a.ok]}}" seconds={{a.time.strftime("%s")}}>
+    <td class="time">{{a.time.strftime("%Y-%m-%d %H:%M:%S")}}</td>
+    <td> {{a.uptime and a.uptime.strftime("%Y-%m-%d %H:%M:%S")}} </td>
+    <td class="downtime">
+{% if a.uptime %}
+    {{distance_of_time_in_words(a.time,a.uptime)}}
+{% else %}
+    {{h.time_ago_in_words(a.time)}}
+{% end %}
+    </td>
+    <td> {{a.ok}} </td>
+    <td> {{a.reason}} </td>
+    <td> <a href="/alerts/nodes/{{a.id}}">{{a.cur_note or '[no note]'}}</a> </td>
+</tr>
+{% end %}
+</tbody>
+</table>
+{% else %}
+    <p>No alert history :-)</p>
+{% end %}
+{% end %}

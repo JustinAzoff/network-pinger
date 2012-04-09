@@ -44,6 +44,12 @@ class AlertsHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("alerts/index.html")
 
+class AlertsAddrHandler(tornado.web.RequestHandler):
+    def get(self, ip):
+        host = model.Host.get_by_addr(ip)
+        self.render("alerts/addr.html", host=host, time_ago_in_words=time_ago_in_words,
+            distance_of_time_in_words=distance_of_time_in_words)
+
 class AlertsDownHandler(tornado.web.RequestHandler):
     def get(self):
         down = get_down()
@@ -111,7 +117,7 @@ class Realtimehandler(tornado.websocket.WebSocketHandler):
     """Websocket handler"""
 
     def open(self):
-        self.write_message("Welcome!")
+        #self.write_message("Welcome!")
         participants.add(self)
         logger.info("new participant")
 
@@ -123,6 +129,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", MainHandler),
             (r"/alerts", AlertsHandler),
+            (r"/alerts/addr/(.*)", AlertsAddrHandler),
             (r"/alerts/down", AlertsDownHandler),
             (r"/alerts/up",   AlertsUpHandler),
 
