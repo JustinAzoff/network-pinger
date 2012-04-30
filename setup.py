@@ -1,9 +1,4 @@
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup, find_packages
+from setuptools import setup, find_packages
 
 import glob
 
@@ -16,7 +11,6 @@ setup(
     url='',
     install_requires=[
         "Tornado",
-        "SocketTornad.IO",
         "SQLAlchemy>=0.6",
         "Webhelpers",
         "beaker",
