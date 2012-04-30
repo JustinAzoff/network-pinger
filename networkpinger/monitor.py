@@ -17,7 +17,7 @@ def run_scripts(status, hosts):
         if os.access(fn, os.X_OK):
             os.putenv("ALERTS", ALERTS)
             p = Popen([fn, status])#, env={"ALERTS": ALERTS})
-            sts = os.waitpid(p.pid, 0)[1]
+            os.waitpid(p.pid, 0)[1]
 
 def log(s):
     sys.stdout.write(s + "\n")
@@ -36,12 +36,13 @@ def monitor_up(c=None):
     if down:
         time.sleep(3)
         _, down = pinger.ping_many_updown(down)
-    if down:
-        log('upmon up:%d down:%d' % (len(ips) - len(down), len(down)))
-        run_scripts("down", down)
 
     for ip in down:
         c.set_down(ip)
+
+    if down:
+        log('upmon up:%d down:%d' % (len(ips) - len(down), len(down)))
+        run_scripts("down", down)
     return len(down)
 
 def monitor_down(c=None):
@@ -52,11 +53,11 @@ def monitor_down(c=None):
     if not ips:
         return
     up, down = pinger.ping_many_updown(ips)
+    for ip in up:
+        c.set_up(ip)
     if up:
         log('downmon up:%d down:%d' % (len(up), len(down)))
         run_scripts("up", up)
-    for ip in up:
-        c.set_up(ip)
     return len(up)
 
 
