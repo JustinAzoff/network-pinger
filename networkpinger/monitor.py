@@ -6,11 +6,11 @@ import sys
 import time
 import os
 from subprocess import Popen
-import simplejson
+import json
 import threading
 
 def run_scripts(status, hosts):
-    ALERTS = simplejson.dumps(list(hosts))
+    ALERTS = json.dumps(list(hosts))
     script_dir = "./script.d"
     for f in os.listdir(script_dir):
         fn = os.path.join(script_dir, f)
