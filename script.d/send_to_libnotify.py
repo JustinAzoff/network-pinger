@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import simplejson
+import json
 import subprocess
 import os
 import sys
 
 d =  os.getenv("ALERTS")
-alerts = simplejson.loads(d)
+alerts = json.loads(d)
 
 hosts = ' '.join(alerts)
 num_hosts = len(alerts)
