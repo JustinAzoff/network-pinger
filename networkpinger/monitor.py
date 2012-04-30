@@ -9,6 +9,8 @@ from subprocess import Popen
 import json
 import threading
 
+RUNNING=True
+
 def run_scripts(status, hosts):
     ALERTS = json.dumps(list(hosts))
     script_dir = "./script.d"
@@ -24,7 +26,7 @@ def log(s):
     sys.stdout.flush()
 
 def monitor_up(c=None):
-    pinger = ping_wrapper.get_backend(use_sudo=True)
+    pinger = ping_wrapper.get_backend(use_sudo=False)
     if not c:
         c = client.Client('localhost:8888')
     ips = c.get_up_addrs()
@@ -46,7 +48,7 @@ def monitor_up(c=None):
     return len(down)
 
 def monitor_down(c=None):
-    pinger = ping_wrapper.get_backend(use_sudo=True)
+    pinger = ping_wrapper.get_backend(use_sudo=False)
     if not c:
         c = client.Client('localhost:8888')
     ips = c.get_down_addrs()
@@ -62,32 +64,37 @@ def monitor_down(c=None):
 
 
 def down_loop():
+    global RUNNING
     c = client.Client('localhost:8888')
     print "starting down loop"
-    while True:
+    while RUNNING:
         up = monitor_down(c)
         if not up:
             time.sleep(2)
 
 def up_loop():
+    global RUNNING
     c = client.Client('localhost:8888')
     print "starting up loop"
-    while True:
+    while RUNNING:
         down = monitor_up(c)
         if not down:
             time.sleep(10)
 
 def main():
-    u = threading.Thread(target=up_loop)
-    d = threading.Thread(target=down_loop)
-    u.start()
-    d.start()
+    global RUNNING
+    u = threading.Thread(target=up_loop,name="up-monitor")
+    d = threading.Thread(target=down_loop,name="down-monitor")
     try :
+        u.start()
+        d.start()
+        #exit if either of the threads crashes.
         while u.isAlive() and d.isAlive():
             u.join(1)
             d.join(1)
     except KeyboardInterrupt:
         sys.exit(1)
+    RUNNING=False
     sys.exit(1)
 
 if __name__ == "__main__":
