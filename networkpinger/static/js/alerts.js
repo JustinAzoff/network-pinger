@@ -39,6 +39,8 @@ var update_time = function(){
         load_alerts();
 }
 
+var alert_timers = {}
+
 var setup_websocket = function(){
     var s = new WebSocket("ws://" + document.location.hostname + ":8888/websocket");
     
@@ -50,10 +52,11 @@ var setup_websocket = function(){
     s.onmessage = function(evt) {
         //log_message(data);
         load_alerts();
-        msg = $.parseJSON(evt.data);
+        var msg = $.parseJSON(evt.data);
         if(msg.down) {
-            if(console.log) console.log("Playing alarm");
-            play_alarm();
+            maybe_play_alarm(msg.down);
+        } else if(msg.up) {
+            cancel_alert(msg.up);
         }
     }
 
@@ -62,6 +65,19 @@ var setup_websocket = function(){
         setTimeout("setup_websocket()", 2*1000);
     }
 };
+
+var maybe_play_alarm = function(node)
+{
+    console.log("Maybe playing alarm for " + node.name);
+    alert_timers[node.name] = setTimeout(play_alarm, 10*1000);
+}
+
+var cancel_alert = function(node)
+{
+    console.log("Back up, not playing alarm for " + node.name);
+    var t = alert_timers[node.name];
+    if(t) clearTimeout(t);
+}
 
 var play_alarm = function(){
     var s = $("#sound").get(0);
