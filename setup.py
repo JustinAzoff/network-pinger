@@ -16,7 +16,6 @@ setup(
     url='',
     install_requires=[
         "Tornado",
-        "SocketTornad.IO",
         "SQLAlchemy>=0.6",
         "Webhelpers",
         "beaker",
