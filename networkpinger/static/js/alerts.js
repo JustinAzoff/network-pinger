@@ -2,8 +2,9 @@ var fetching_down = false;
 var fetching_up = false;
 
 var log_message = function(s,d){
-    if(!d)d=3000;
-    $("#msg").text(s).show().fadeOut(d);
+    var m = $("#msg").text(s).show()
+    if(d)
+        m.fadeOut(d);
 }
 
 var load_alerts = function(){
@@ -46,7 +47,7 @@ var setup_websocket = function(){
     
     s.onopen = function() {
         //s.send('New participant joined');
-        log_message("Connected to socket!");
+        log_message("Connected to socket!",3000);
     }
     
     s.onmessage = function(evt) {
