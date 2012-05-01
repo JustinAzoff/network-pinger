@@ -7,7 +7,7 @@ Seconds to refresh: <b id="time_remaining">30</b>.
 <span id="msg">
 </span>
 <span id="sounds">
-<audio id="sound" src="/static/alarm.wav" type="audio/x-wav">No audio support</audio>
+<audio id="sound" src="{{static_url("alarm.wav")}}" type="audio/x-wav">No audio support</audio>
 </span>
 
 <div id="down">
@@ -17,5 +17,5 @@ Loading initial alerts...
 <div id="up">
 </div>
 
-<script src={{ static_url("js/alerts.js") }}></script>
+<script src="{{ static_url("js/alerts.js") }}"></script>
 {% end %}
