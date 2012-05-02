@@ -78,6 +78,7 @@ var cancel_alarm = function(node)
     console.log("Back up, not playing alarm for " + node.name);
     var t = alarm_timers[node.name];
     if(t) clearTimeout(t);
+    delete(alarm_timers[node.name]);
 }
 
 var play_alarm = function(){
