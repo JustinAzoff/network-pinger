@@ -40,7 +40,7 @@ var update_time = function(){
         load_alerts();
 }
 
-var alert_timers = {}
+var alarm_timers = {}
 
 var setup_websocket = function(){
     var s = new WebSocket("ws://" + document.location.hostname + ":8888/websocket");
@@ -57,7 +57,7 @@ var setup_websocket = function(){
         if(msg.down) {
             maybe_play_alarm(msg.down);
         } else if(msg.up) {
-            cancel_alert(msg.up);
+            cancel_alarm(msg.up);
         }
     }
 
@@ -70,13 +70,13 @@ var setup_websocket = function(){
 var maybe_play_alarm = function(node)
 {
     console.log("Maybe playing alarm for " + node.name);
-    alert_timers[node.name] = setTimeout(play_alarm, 10*1000);
+    alarm_timers[node.name] = setTimeout(play_alarm, 10*1000);
 }
 
-var cancel_alert = function(node)
+var cancel_alarm = function(node)
 {
     console.log("Back up, not playing alarm for " + node.name);
-    var t = alert_timers[node.name];
+    var t = alarm_timers[node.name];
     if(t) clearTimeout(t);
 }
 
