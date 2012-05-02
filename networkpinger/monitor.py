@@ -11,6 +11,8 @@ import threading
 
 RUNNING=True
 
+SUDO=True
+
 def run_scripts(status, hosts):
     ALERTS = json.dumps(list(hosts))
     script_dir = "./script.d"
@@ -26,7 +28,7 @@ def log(s):
     sys.stdout.flush()
 
 def monitor_up(c=None):
-    pinger = ping_wrapper.get_backend(use_sudo=False)
+    pinger = ping_wrapper.get_backend(use_sudo=SUDO)
     if not c:
         c = client.Client('localhost:8888')
     ips = c.get_up_addrs()
@@ -48,7 +50,7 @@ def monitor_up(c=None):
     return len(down)
 
 def monitor_down(c=None):
-    pinger = ping_wrapper.get_backend(use_sudo=False)
+    pinger = ping_wrapper.get_backend(use_sudo=SUDO)
     if not c:
         c = client.Client('localhost:8888')
     ips = c.get_down_addrs()
@@ -62,15 +64,23 @@ def monitor_down(c=None):
         run_scripts("up", up)
     return len(up)
 
+def maybe_sleep(seconds):
+    """Sleep for `seconds` while keeping track if we should be exiting or not"""
+    global RUNNING
+    for x in range(seconds*10):
+        if not RUNNING:
+            return
+        time.sleep(.1)
 
 def down_loop():
     global RUNNING
     c = client.Client('localhost:8888')
+    time.sleep(0.5)
     print "starting down loop"
     while RUNNING:
         up = monitor_down(c)
         if not up:
-            time.sleep(2)
+            maybe_sleep(2)
 
 def up_loop():
     global RUNNING
@@ -79,7 +89,7 @@ def up_loop():
     while RUNNING:
         down = monitor_up(c)
         if not down:
-            time.sleep(10)
+            maybe_sleep(10)
 
 def main():
     global RUNNING
@@ -93,7 +103,8 @@ def main():
             u.join(1)
             d.join(1)
     except KeyboardInterrupt:
-        sys.exit(1)
+        pass
+    print "Exiting.."
     RUNNING=False
     sys.exit(1)
 
