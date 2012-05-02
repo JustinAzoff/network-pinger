@@ -2,15 +2,16 @@ var fetching_down = false;
 var fetching_up = false;
 
 var log_message = function(s,d){
-    if(!d)d=3000;
-    $("#msg").text(s).show().fadeOut(d);
+    var m = $("#msg").text(s).show()
+    if(d)
+        m.fadeOut(d);
 }
 
 var load_alerts = function(){
     //log_message("Loading...");
     load_down();
     load_up();
-    $("#time_remaining").text(30); //try again in 30 seconds
+    $("#time_remaining").text(9); //try again in 9 seconds
 }
 
 var load_down = function() {
@@ -39,14 +40,14 @@ var update_time = function(){
         load_alerts();
 }
 
-var alert_timers = {}
+var alarm_timers = {}
 
 var setup_websocket = function(){
     var s = new WebSocket("ws://" + document.location.hostname + ":8888/websocket");
     
     s.onopen = function() {
         //s.send('New participant joined');
-        log_message("Connected to socket!");
+        log_message("Connected to socket!",3000);
     }
     
     s.onmessage = function(evt) {
@@ -56,7 +57,7 @@ var setup_websocket = function(){
         if(msg.down) {
             maybe_play_alarm(msg.down);
         } else if(msg.up) {
-            cancel_alert(msg.up);
+            cancel_alarm(msg.up);
         }
     }
 
@@ -69,13 +70,13 @@ var setup_websocket = function(){
 var maybe_play_alarm = function(node)
 {
     console.log("Maybe playing alarm for " + node.name);
-    alert_timers[node.name] = setTimeout(play_alarm, 10*1000);
+    alarm_timers[node.name] = setTimeout(play_alarm, 10*1000);
 }
 
-var cancel_alert = function(node)
+var cancel_alarm = function(node)
 {
     console.log("Back up, not playing alarm for " + node.name);
-    var t = alert_timers[node.name];
+    var t = alarm_timers[node.name];
     if(t) clearTimeout(t);
 }
 
