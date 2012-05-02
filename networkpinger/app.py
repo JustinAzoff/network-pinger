@@ -18,6 +18,11 @@ from beaker.util import parse_cache_config_options
 import logging
 logger = logging.getLogger()
 
+import subprocess
+def speak(msg):
+    pipe = subprocess.Popen(["espeak", "--stdout", msg], stdout=subprocess.PIPE)
+    return pipe.communicate()[0]
+
 cache_opts = {
     'cache.type': 'memory'
 }
@@ -106,6 +111,14 @@ class AlertsDownAddrsJson(tornado.web.RequestHandler):
     def get(self):
         self.finish(json_encode({'addrs': [a.addr for a in get_down()]}))
 
+class AlertsStatusWav(tornado.web.RequestHandler):
+    def get(self):
+        down = get_down()
+        msg = "Outage, Outage, Outage, %d nodes are down" % len(down)
+        wav = speak(msg)
+        self.finish(wav)
+        
+
 participants = set()
 
 def broadcast(msg):
@@ -143,6 +156,9 @@ class Application(tornado.web.Application):
             (r"/alerts/down_addrs.json", AlertsDownAddrsJson),
 
             (r"/alerts/down_addrs.json", AlertsDownAddrsJson),
+
+            (r"/alerts/status.wav", AlertsStatusWav),
+
             (r"/websocket", Realtimehandler),
         ]
         settings = dict(

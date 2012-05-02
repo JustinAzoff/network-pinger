@@ -81,9 +81,10 @@ var cancel_alarm = function(node)
 }
 
 var play_alarm = function(){
+    console.log("Playing alarm");
     var s = $("#sound").get(0);
     //FIXME, should not need to do this:
-    s.src = s.src;
+    s.src = s.src
     s.play();
 }
 
