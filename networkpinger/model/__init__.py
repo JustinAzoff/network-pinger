@@ -121,16 +121,18 @@ class Host(Base):
     __tablename__ = 'hosts'
 
     id          = sa.Column(sa.types.Integer,       primary_key=True)
-    addr        = sa.Column(sa.types.String(255),   nullable=False)
+    addr        = sa.Column(sa.types.String(255),   nullable=True)
     name        = sa.Column(sa.types.String(255),   nullable=False)
     active      = sa.Column(sa.types.Boolean,       nullable=False, default=True)
+    resolve     = sa.Column(sa.types.Boolean,       nullable=False, default=False)
 
     alerts      = orm.relation('Alert', backref='host', lazy='dynamic',order_by=sa.desc(Alert.time))
 
-    def __init__(self, addr, name, active=True):
+    def __init__(self, addr, name, resolve=False, active=True):
         self.addr = addr
         self.name = name
         self.active = active
+        self.resolve = resolve
 
     def __repr__(self):
        return "<Host('%s', '%s')>" % (self.addr, self.name)
@@ -140,14 +142,32 @@ class Host(Base):
         return Session.query(Host).filter(Host.addr==addr).first()
 
     @classmethod
-    def add(self, addr, name):
-        h = Host.get_by_addr(addr)
-        if not h:
-            h = Host(addr, name)
-            Session.add(h)
-            Session.commit()
+    def get_by_name(self, name):
+        return Session.query(Host).filter(Host.name==name).first()
+
+    @classmethod
+    def add(self, name, addr=None):
+        if addr:
+            h = Host.get_by_addr(addr)
+            if not h:
+                h = Host(addr, name)
+                h._added = True
+            else:
+                h.name = name
+        else:
+            h = Host.get_by_name(name)
+            if not h:
+                h = Host(None, name, resolve=True)
+                h._added = True
+            
+        Session.add(h)
+        Session.commit()
         return h
 
+    @classmethod
+    def all(cls):
+        q = Session.query(Host).filter(Host.active==True).all()
+        return q
     @classmethod
     def get_all_addresses(cls):
         q = Session.query(Host).filter(Host.active==True).all()

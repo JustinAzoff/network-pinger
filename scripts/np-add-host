@@ -8,6 +8,6 @@ from networkpinger import model
 addr = sys.argv[1]
 name = sys.argv[2]
 
-h = model.Host.add(addr, name)
+h = model.Host.add(name, addr)
 model.Session.commit()
 print h
