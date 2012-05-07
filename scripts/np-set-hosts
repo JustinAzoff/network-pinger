@@ -16,7 +16,7 @@ def set_hosts(hosts):
     for x in model.Host.all():
         if x.name not in wanted:
             print "removed", x
-            model.Session.delete(x)
+            x.set_inactive("removed")
     model.Session.commit()
 
 def main():
