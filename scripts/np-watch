@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-import time
-import stomp
+import websocket
 import sys
-import select
 import simplejson
 
 def handle(message):
@@ -17,14 +15,10 @@ def handle(message):
         
 
 def watch():
-    c = stomp.Stomp('localhost', 61613)
-    c.connect()
-
-    c.subscribe(dict(destination='/topic/alert_msgs'))
-    for n in range(1000):
-        m = c.receive_frame()
-        if m:
-            handle(m)
+    ws = websocket.create_connection("ws://localhost:8888/websocket")
+    while True:
+        data = ws.recv()
+        print data
 
 if __name__ == "__main__":
     watch()
