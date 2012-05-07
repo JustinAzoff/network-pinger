@@ -106,7 +106,7 @@ def resolve_loop():
     print "starting resolve loop"
     while RUNNING:
         resolve_ips(c)
-        maybe_sleep(10)
+        maybe_sleep(600)
 
 def main():
     global RUNNING
