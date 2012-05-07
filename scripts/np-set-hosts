@@ -10,6 +10,9 @@ def set_hosts(hosts):
         h = model.Host.add(name, addr)
         if hasattr(h, '_added'):
             print "added", h
+        elif not h.active:
+            h.set_active()
+            print "Activated", h
     model.Session.commit()
 
     wanted = set(name for (addr, name) in hosts)
