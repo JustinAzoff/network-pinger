@@ -170,8 +170,13 @@ class Host(Base):
         return q
     @classmethod
     def get_all_addresses(cls):
-        q = Session.query(Host).filter(Host.active==True).all()
+        q = Session.query(Host).filter(Host.active==True).filter(Host.addr!=None).all()
         return [h.addr for h in q]
+
+    @classmethod
+    def get_resolved(cls):
+        q = Session.query(Host).filter(Host.active==True).filter(Host.resolve==True).all()
+        return q
 
     @classmethod
     def get_down_addresses(cls):

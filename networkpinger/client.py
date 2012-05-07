@@ -38,3 +38,9 @@ class Client:
 
     def get_up(self):
         return self.do_json("alerts/up.json")['up']
+
+    def get_resolved_addresses(self):
+        return self.do_json("alerts/resolved.json")['names']
+
+    def set_resolved_addr(self, name, addr):
+        return self.do_json("alerts/set_resolved", name=name, addr=addr)

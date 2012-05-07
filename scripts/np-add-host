@@ -5,9 +5,13 @@ configure(sys.argv[1])
 
 from networkpinger import model
 
-addr = sys.argv[1]
 name = sys.argv[2]
+try :
+    addr = sys.argv[3]
+except IndexError:
+    addr = None
 
 h = model.Host.add(name, addr)
+h.set_active()
 model.Session.commit()
 print h

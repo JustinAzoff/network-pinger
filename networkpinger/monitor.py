@@ -8,11 +8,13 @@ import os
 from subprocess import Popen
 import json
 import threading
+import socket
 
-RUNNING=True
 
+HOST = "localhost:8888"
 SUDO=True
 
+RUNNING=True
 def run_scripts(status, hosts):
     ALERTS = json.dumps(list(hosts))
     script_dir = "./script.d"
@@ -30,7 +32,7 @@ def log(s):
 def monitor_up(c=None):
     pinger = ping_wrapper.get_backend(use_sudo=SUDO)
     if not c:
-        c = client.Client('localhost:8888')
+        c = client.Client(HOST)
     ips = c.get_up_addrs()
     if not ips:
         return
@@ -52,7 +54,7 @@ def monitor_up(c=None):
 def monitor_down(c=None):
     pinger = ping_wrapper.get_backend(use_sudo=SUDO)
     if not c:
-        c = client.Client('localhost:8888')
+        c = client.Client(HOST)
     ips = c.get_down_addrs()
     if not ips:
         return
@@ -74,7 +76,7 @@ def maybe_sleep(seconds):
 
 def down_loop():
     global RUNNING
-    c = client.Client('localhost:8888')
+    c = client.Client(HOST)
     time.sleep(0.5)
     print "starting down loop"
     while RUNNING:
@@ -84,24 +86,39 @@ def down_loop():
 
 def up_loop():
     global RUNNING
-    c = client.Client('localhost:8888')
+    c = client.Client(HOST)
     print "starting up loop"
     while RUNNING:
         down = monitor_up(c)
         if not down:
             maybe_sleep(10)
 
+def resolve_ips(c):
+    names = c.get_resolved_addresses()
+    for name in names:
+        addr = socket.gethostbyname(name)
+        print 'resolve', name, addr
+        c.set_resolved_addr(name, addr)
+
+def resolve_loop():
+    global RUNNING
+    c = client.Client(HOST)
+    print "starting resolve loop"
+    while RUNNING:
+        resolve_ips(c)
+        maybe_sleep(10)
+
 def main():
     global RUNNING
-    u = threading.Thread(target=up_loop,name="up-monitor")
-    d = threading.Thread(target=down_loop,name="down-monitor")
+    u = threading.Thread(target=up_loop,      name="up-monitor")
+    d = threading.Thread(target=down_loop,    name="down-monitor")
+    r = threading.Thread(target=resolve_loop, name="resolve-hosts")
+    threads = [u,d,r]
     try :
-        u.start()
-        d.start()
+        for t in threads: t.start()
         #exit if either of the threads crashes.
-        while u.isAlive() and d.isAlive():
-            u.join(1)
-            d.join(1)
+        while all(t.isAlive() for t in threads):
+            for t in threads: t.join(1)
     except KeyboardInterrupt:
         pass
     print "Exiting.."

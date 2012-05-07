@@ -106,6 +106,22 @@ class AlertsDownAddrsJson(tornado.web.RequestHandler):
     def get(self):
         self.finish(json_encode({'addrs': [a.addr for a in get_down()]}))
 
+class AlertsResolvedJson(tornado.web.RequestHandler):
+    def get(self):
+        self.finish(json_encode({'names': [a.name for a in model.Host.get_resolved()]}))
+
+class AlertsSetResolvedAddr(tornado.web.RequestHandler):
+    def post(self):
+        name = self.get_argument("name")
+        addr = self.get_argument("addr")
+
+        h = model.Host.get_by_name(name)
+        if not h:
+            self.finish('"eh?"')
+        h.addr = addr
+        model.Session.commit()
+        self.finish('"ok"')
+
 participants = set()
 
 def broadcast(msg):
@@ -143,6 +159,10 @@ class Application(tornado.web.Application):
             (r"/alerts/down_addrs.json", AlertsDownAddrsJson),
 
             (r"/alerts/down_addrs.json", AlertsDownAddrsJson),
+
+            (r"/alerts/resolved.json", AlertsResolvedJson),
+            (r"/alerts/set_resolved", AlertsSetResolvedAddr),
+
             (r"/websocket", Realtimehandler),
         ]
         settings = dict(
