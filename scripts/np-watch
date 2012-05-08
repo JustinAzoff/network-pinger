@@ -4,21 +4,20 @@ import sys
 import simplejson
 
 def handle(message):
-    msg = simplejson.loads(message.body)
-    if msg['up']:
+    msg = simplejson.loads(message)
+    if 'up' in msg:
         a = msg['up']
-        print 'Up: ',
-    if msg['down']:
-        print 'Down: ',
+        print "Up: %(addr)s %(name)s %(time)s %(uptime)s" % a
+    if 'down' in msg:
         a = msg['down']
-    print "%(addr)s %(name)s %(time)s %(uptime)s" % a
+        print "Down: %(addr)s %(name)s %(time)s" % a
         
 
 def watch():
     ws = websocket.create_connection("ws://localhost:8888/websocket")
     while True:
         data = ws.recv()
-        print data
+        handle(data)
 
 if __name__ == "__main__":
     watch()
