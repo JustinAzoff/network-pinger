@@ -15,9 +15,11 @@ def set_hosts(hosts):
             print "Activated", h
     model.Session.commit()
 
-    wanted = set(name for (addr, name) in hosts)
+    wanted_names = set(name for (addr, name) in hosts)
+    wanted_ips = set(addr for (addr, name) in hosts)
     for x in model.Host.all():
-        if x.name not in wanted:
+        if ((x.resolve and x.name not in wanted_names) or
+            (not x.resolve and x.addr not in wanted_ips)):
             print "removed", x
             x.set_inactive("removed")
     model.Session.commit()
