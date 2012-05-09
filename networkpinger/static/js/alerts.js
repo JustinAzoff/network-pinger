@@ -41,6 +41,7 @@ var update_time = function(){
 }
 
 var alarm_timers = {}
+var disconnected = false;
 
 var setup_websocket = function(){
     var s = new WebSocket("ws://" + document.location.hostname + ":8888/websocket");
@@ -48,6 +49,9 @@ var setup_websocket = function(){
     s.onopen = function() {
         //s.send('New participant joined');
         log_message("Connected to socket!",3000);
+        /* assume the application was updated and reload */
+        if(disconnected)
+            window.location.reload(true);
     }
     
     s.onmessage = function(evt) {
@@ -63,6 +67,7 @@ var setup_websocket = function(){
 
     s.onclose = function () {
         log_message("disconnected:(");
+        disconnected = true;
         setTimeout("setup_websocket()", 2*1000);
     }
 };
