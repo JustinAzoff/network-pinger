@@ -27,7 +27,11 @@ def set_hosts(hosts):
 def main():
     hosts = []
     for line in sys.stdin:
-        addr, name = line.strip().split(None, 1)
+        try :
+            addr, name = line.strip().split(None, 1)
+        except:
+            addr = None
+            name = line.strip()
         hosts.append((addr, name))
     set_hosts(hosts)
 
